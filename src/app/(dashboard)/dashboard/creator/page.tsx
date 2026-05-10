@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardAccent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Briefcase, MessageSquare, TrendingUp, User, ArrowRight, FileText } from "lucide-react";
+import { Briefcase, MessageSquare, TrendingUp, User, ArrowRight, FileText, DollarSign, Eye, Clock, CheckCircle2, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 async function getCreatorStats(userId: string) {
   const supabase = await createClient();
@@ -41,6 +42,44 @@ async function getCreatorStats(userId: string) {
   };
 }
 
+const statsCards = [
+  {
+    title: "Applications",
+    key: "applications",
+    icon: Briefcase,
+    color: "from-violet-500 to-purple-600",
+    details: (stats: any) => `${stats.applications.pending} pending`,
+  },
+  {
+    title: "Active Deals",
+    key: "deals",
+    icon: DollarSign,
+    color: "from-emerald-500 to-teal-500",
+    details: (stats: any) => `${stats.deals.active} active`,
+  },
+  {
+    title: "Messages",
+    key: "messages",
+    icon: MessageSquare,
+    color: "from-blue-500 to-cyan-500",
+    details: (stats: any) => `${stats.messages.unread} unread`,
+  },
+  {
+    title: "Profile Views",
+    key: "views",
+    icon: Eye,
+    color: "from-amber-500 to-orange-500",
+    details: () => "This month",
+  },
+];
+
+const quickActions = [
+  { href: "/dashboard/creator/campaigns", icon: FileText, label: "Browse Campaigns", color: "bg-violet-500" },
+  { href: "/dashboard/creator/applications", icon: Briefcase, label: "My Applications", color: "bg-blue-500" },
+  { href: "/dashboard/creator/messages", icon: MessageSquare, label: "Messages", color: "bg-emerald-500" },
+  { href: "/dashboard/creator/profile", icon: User, label: "Edit Profile", color: "bg-amber-500" },
+];
+
 export default async function CreatorDashboardPage() {
   const supabase = await createClient();
 
@@ -64,127 +103,199 @@ export default async function CreatorDashboardPage() {
 
   const stats = await getCreatorStats(user.id);
 
-  const quickActions = [
-    { href: "/dashboard/creator/campaigns", icon: FileText, label: "Browse Campaigns" },
-    { href: "/dashboard/creator/applications", icon: Briefcase, label: "My Applications" },
-    { href: "/dashboard/creator/messages", icon: MessageSquare, label: "Messages" },
-    { href: "/dashboard/creator/profile", icon: User, label: "Edit Profile" },
-  ];
-
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Welcome back!</h1>
-        <p className="text-muted-foreground mt-1">
-          Here&apos;s an overview of your creator dashboard
-        </p>
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <h1 className="text-3xl font-bold tracking-tight">Welcome back!</h1>
+            <p className="text-muted-foreground mt-1">
+              Here&apos;s an overview of your creator dashboard
+            </p>
+          </motion.div>
+        </div>
+        <Button className="gap-2" asChild>
+          <Link href="/dashboard/creator/campaigns">
+            <Sparkles className="h-4 w-4" />
+            Find Campaigns
+          </Link>
+        </Button>
       </div>
 
+      {/* Profile Status Alert */}
       {userData?.creator_profiles?.[0]?.username ? (
-        <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
-          <p className="text-sm">
-            Your profile is live! Share your link:{" "}
-            <span className="font-medium text-primary">
-              /creators/{userData.creator_profiles[0].username}
-            </span>
-          </p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center">
+              <CheckCircle2 className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-emerald-700 dark:text-emerald-400">Your profile is live!</p>
+              <p className="text-sm text-muted-foreground">
+                Share your link:{" "}
+                <code className="text-primary font-medium">/creators/{userData.creator_profiles[0].username}</code>
+              </p>
+            </div>
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/creators/${userData.creator_profiles[0].username}`}>
+                View Profile
+                <ArrowRight className="h-4 w-4 ml-1" />
+              </Link>
+            </Button>
+          </div>
+        </motion.div>
       ) : (
-        <div className="p-4 rounded-lg bg-yellow-50 border border-yellow-200 dark:bg-yellow-950 dark:border-yellow-800">
-          <p className="text-sm text-yellow-800 dark:text-yellow-200">
-            Complete your profile to start receiving campaign offers.{" "}
-            <Link href="/dashboard/creator/profile" className="underline font-medium">
-              Set up profile
-            </Link>
-          </p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center">
+              <Sparkles className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-amber-700 dark:text-amber-400">Complete your profile to start receiving offers</p>
+              <p className="text-sm text-muted-foreground">
+                Fill out your creator profile to get matched with brands
+              </p>
+            </div>
+            <Button size="sm" asChild>
+              <Link href="/dashboard/creator/profile">Set up profile</Link>
+            </Button>
+          </div>
+        </motion.div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Applications</CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.applications.total}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.applications.pending} pending, {stats.applications.accepted} accepted
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Deals</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.deals.active}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.deals.completed} completed
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Messages</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.messages.total}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.messages.unread} unread
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Profile Views</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">
-              This month
-            </p>
-          </CardContent>
-        </Card>
+      {/* Stats Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {statsCards.map((stat, index) => (
+          <motion.div
+            key={stat.title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <Card variant="elevated" className="relative overflow-hidden group hover-lift">
+              <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${stat.color} opacity-10 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-110`} />
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                    <p className="text-2xl font-bold mt-1">
+                      {stat.key === "applications" && stats.applications.total}
+                      {stat.key === "deals" && stats.deals.total}
+                      {stat.key === "messages" && stats.messages.total}
+                      {stat.key === "views" && "0"}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {stat.details(stats)}
+                    </p>
+                  </div>
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg`}>
+                    <stat.icon className="h-6 w-6 text-white" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
       </div>
 
+      {/* Quick Actions & Recent Activity */}
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common tasks to get started</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-2">
-            {quickActions.map((action) => (
-              <Button key={action.href} variant="outline" className="justify-start" asChild>
-                <Link href={action.href}>
-                  <action.icon className="mr-2 h-4 w-4" />
-                  {action.label}
-                </Link>
-              </Button>
-            ))}
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card variant="glass">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-3">
+              {quickActions.map((action) => (
+                <Button
+                  key={action.href}
+                  variant="outline"
+                  className="justify-start gap-3 h-auto py-3"
+                  asChild
+                >
+                  <Link href={action.href}>
+                    <div className={`w-8 h-8 rounded-lg ${action.color} flex items-center justify-center`}>
+                      <action.icon className="h-4 w-4 text-white" />
+                    </div>
+                    <span className="text-sm">{action.label}</span>
+                  </Link>
+                </Button>
+              ))}
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Your latest updates</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-muted-foreground">
-              <p>No recent activity</p>
-              <p className="text-sm">Start by browsing campaigns or completing your profile</p>
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card variant="glass">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Recent Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                  <Clock className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <p className="text-muted-foreground">No recent activity</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Start by browsing campaigns or completing your profile
+                </p>
+                <Button variant="outline" size="sm" className="mt-4" asChild>
+                  <Link href="/dashboard/creator/campaigns">
+                    Browse Campaigns
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Tips Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <Card variant="outline" className="border-dashed">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/25">
+                <Sparkles className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold mb-1">Pro Tip: Optimize Your Profile</h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Add your social media handles, showcase your portfolio, and set competitive pricing to attract more brand deals.
+                </p>
+                <Button size="sm" variant="gradient" asChild>
+                  <Link href="/dashboard/creator/profile">Complete Profile</Link>
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
     </div>
   );
 }

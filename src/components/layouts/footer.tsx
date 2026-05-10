@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, Globe, ExternalLink } from "lucide-react";
+import { Mail, Globe, ExternalLink, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const footerLinks = {
@@ -28,53 +28,61 @@ const footerLinks = {
   ],
 };
 
+const socialLinks = [
+  { href: "https://twitter.com", icon: Globe, label: "Twitter" },
+  { href: "https://linkedin.com", icon: ExternalLink, label: "LinkedIn" },
+];
+
 export function Footer() {
   return (
-    <footer className="border-t bg-muted/30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+    <footer className="relative border-t bg-gradient-to-b from-muted/30 to-background overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-500/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-8 lg:gap-12">
+          {/* Brand Column */}
           <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/25">
-                <span className="text-primary-foreground font-bold text-lg">S</span>
+            <Link href="/" className="flex items-center gap-3 mb-6 group">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-violet-600 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-primary/25 group-hover:shadow-primary/40 transition-shadow">
+                <Sparkles className="h-5 w-5 text-white" />
               </div>
-              <span className="text-xl font-bold">SponsorNepal</span>
+              <span className="text-xl font-bold tracking-tight">
+                Sponsor<span className="text-primary">Nepal</span>
+              </span>
             </Link>
-            <p className="text-muted-foreground text-sm mb-6 max-w-xs">
+            <p className="text-muted-foreground text-sm mb-6 max-w-xs leading-relaxed">
               The premier marketplace connecting Nepali creators with brands for meaningful sponsorships and influencer campaigns.
             </p>
             <div className="flex gap-2">
-              <Button variant="ghost" size="icon" asChild>
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-                  <Globe className="h-5 w-5" />
-                </a>
-              </Button>
-              <Button variant="ghost" size="icon" asChild>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="h-5 w-5" />
-                </a>
-              </Button>
-              <Button variant="ghost" size="icon" asChild>
-                <a href="https://github.com" target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="h-5 w-5" />
-                </a>
-              </Button>
-              <Button variant="ghost" size="icon" asChild>
-                <a href="mailto:hello@sponsornepal.com">
-                  <Mail className="h-5 w-5" />
-                </a>
-              </Button>
+              {socialLinks.map((social) => (
+                <Button 
+                  key={social.label}
+                  variant="ghost" 
+                  size="icon" 
+                  className="rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                  asChild
+                >
+                  <a href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
+                    <social.icon className="h-4 w-4" />
+                  </a>
+                </Button>
+              ))}
             </div>
           </div>
 
+          {/* Product Links */}
           <div>
-            <h4 className="font-semibold mb-4">Product</h4>
+            <h4 className="font-semibold mb-4 text-sm">Product</h4>
             <ul className="space-y-3">
               {footerLinks.product.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -83,14 +91,15 @@ export function Footer() {
             </ul>
           </div>
 
+          {/* Company Links */}
           <div>
-            <h4 className="font-semibold mb-4">Company</h4>
+            <h4 className="font-semibold mb-4 text-sm">Company</h4>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -99,14 +108,15 @@ export function Footer() {
             </ul>
           </div>
 
+          {/* Resources Links */}
           <div>
-            <h4 className="font-semibold mb-4">Resources</h4>
+            <h4 className="font-semibold mb-4 text-sm">Resources</h4>
             <ul className="space-y-3">
               {footerLinks.resources.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -114,18 +124,40 @@ export function Footer() {
               ))}
             </ul>
           </div>
+
+          {/* Newsletter */}
+          <div className="col-span-2 md:col-span-1">
+            <h4 className="font-semibold mb-4 text-sm">Stay Updated</h4>
+            <p className="text-sm text-muted-foreground mb-4">
+              Get the latest creator economy news and updates.
+            </p>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full gap-2"
+                asChild
+              >
+                <a href="mailto:hello@sponsornepal.com">
+                  <Mail className="h-4 w-4" />
+                  Subscribe
+                </a>
+              </Button>
+            </div>
+          </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4">
+        {/* Bottom Bar */}
+        <div className="mt-16 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} SponsorNepal. All rights reserved.
           </p>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap justify-center gap-6">
             {footerLinks.legal.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
               >
                 {link.label}
               </Link>
