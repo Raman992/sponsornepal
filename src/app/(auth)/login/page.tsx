@@ -11,7 +11,14 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { createClient } from "@/lib/supabase/client";
 
 const loginSchema = z.object({
@@ -25,9 +32,11 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/dashboard";
+  const oauthError = searchParams.get("error");
+  const oauthErrorDescription = searchParams.get("error_description");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(oauthError || null);
   const supabase = createClient();
 
   const form = useForm<LoginFormData>({
@@ -53,7 +62,9 @@ function LoginForm() {
         return;
       }
 
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
         const { data: userData } = await supabase
           .from("users")
@@ -62,7 +73,7 @@ function LoginForm() {
           .single();
 
         const role = userData?.role || "creator";
-        router.push(redirect.replace("dashboard", role));
+        router.push(`/dashboard/${role}`);
         router.refresh();
       }
     } catch (err) {
@@ -74,19 +85,28 @@ function LoginForm() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
         },
       });
+
       if (error) {
         setError(error.message);
+        setIsLoading(false);
+      } else if (data?.url) {
+        // Redirect to Google OAuth
+        window.location.href = data.url;
       }
     } catch (err) {
       setError("An unexpected error occurred with Google sign in.");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -106,27 +126,32 @@ function LoginForm() {
       >
         <Card variant="glass" className="relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-violet-500 to-fuchsia-500" />
-          
+
           <CardHeader className="space-y-1 text-center pb-2">
-            <Link href="/" className="flex items-center justify-center gap-2 mb-4">
+            <Link
+              href="/"
+              className="flex items-center justify-center gap-2 mb-4"
+            >
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-violet-600 to-fuchsia-500 flex items-center justify-center shadow-lg">
                 <Sparkles className="h-5 w-5 text-white" />
               </div>
             </Link>
             <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
-            <p className="text-sm text-muted-foreground">Sign in to your account to continue</p>
+            <p className="text-sm text-muted-foreground">
+              Sign in to your account to continue
+            </p>
           </CardHeader>
-          
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <CardContent className="space-y-4">
-                {error && (
-                  <motion.div 
+                {(error || oauthError) && (
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="p-3 text-sm text-destructive bg-destructive/10 rounded-lg border border-destructive/20"
                   >
-                    {error}
+                    {oauthErrorDescription || error || oauthError}
                   </motion.div>
                 )}
 
@@ -137,7 +162,11 @@ function LoginForm() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="name@example.com" {...field} />
+                        <Input
+                          type="email"
+                          placeholder="name@example.com"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -151,7 +180,10 @@ function LoginForm() {
                     <FormItem>
                       <FormLabel className="flex justify-between">
                         <span>Password</span>
-                        <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                        <Link
+                          href="/forgot-password"
+                          className="text-sm text-primary hover:underline"
+                        >
                           Forgot password?
                         </Link>
                       </FormLabel>
@@ -167,7 +199,11 @@ function LoginForm() {
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                           >
-                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
                           </button>
                         </div>
                       </FormControl>
@@ -176,18 +212,23 @@ function LoginForm() {
                   )}
                 />
               </CardContent>
-              
+
               <div className="px-6 pb-6 space-y-4">
-                <Button type="submit" className="w-full" size="lg" disabled={isLoading} loading={isLoading}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  size="lg"
+                  disabled={isLoading}
+                  loading={isLoading}
+                >
                   Sign In
                 </Button>
 
                 <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+                    <span className="bg-card px-2 text-muted-foreground">
+                      Or continue with
+                    </span>
                   </div>
                 </div>
 
@@ -221,7 +262,10 @@ function LoginForm() {
 
                 <p className="text-sm text-muted-foreground text-center">
                   Don&apos;t have an account?{" "}
-                  <Link href="/signup" className="text-primary hover:underline font-medium">
+                  <Link
+                    href="/signup"
+                    className="text-primary hover:underline font-medium"
+                  >
                     Sign up
                   </Link>
                 </p>

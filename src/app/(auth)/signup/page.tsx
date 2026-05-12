@@ -31,11 +31,13 @@ type SignupFormData = z.infer<typeof signupSchema>;
 function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const defaultRole = (searchParams.get("role") as UserRole) || "creator";
-  const [role, setRole] = useState<UserRole>(defaultRole);
+  const initialRole = (searchParams.get("role") as UserRole) || "creator";
+  const oauthError = searchParams.get("error");
+  const oauthErrorDescription = searchParams.get("error_description");
+  const [role, setRole] = useState<UserRole>(initialRole);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(oauthError || null);
   const supabase = createClient();
 
   const form = useForm<SignupFormData>({
@@ -59,6 +61,7 @@ function SignupForm() {
         options: {
           data: {
             full_name: data.fullName,
+            role: role, // Pass the selected role to Supabase
           },
         },
       });
@@ -73,7 +76,7 @@ function SignupForm() {
           id: authData.user.id,
           email: data.email,
           full_name: data.fullName,
-          role: defaultRole,
+          role: role, // Use the selected role instead of defaultRole
         });
 
         if (profileError) {
@@ -81,7 +84,7 @@ function SignupForm() {
           return;
         }
 
-        if (defaultRole === "creator") {
+        if (role === "creator") {
           const { error: creatorProfileError } = await supabase
             .from("creator_profiles")
             .insert({
@@ -92,7 +95,7 @@ function SignupForm() {
           if (creatorProfileError) {
             console.error("Creator profile creation error:", creatorProfileError);
           }
-        } else if (defaultRole === "brand") {
+        } else if (role === "brand") {
           const { error: brandProfileError } = await supabase
             .from("brand_profiles")
             .insert({
@@ -105,7 +108,7 @@ function SignupForm() {
           }
         }
 
-        router.push(`/dashboard/${defaultRole}?welcome=true`);
+        router.push(`/dashboard/${role}?welcome=true`); // Use the selected role in the redirect
         router.refresh();
       }
     } catch (err) {
@@ -117,19 +120,28 @@ function SignupForm() {
 
   const handleGoogleSignUp = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?role=${role}`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
         },
       });
+
       if (error) {
         setError(error.message);
+        setIsLoading(false);
+      } else if (data?.url) {
+        // Redirect to Google OAuth
+        window.location.href = data.url;
       }
     } catch (err) {
       setError("An unexpected error occurred with Google sign up.");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -175,9 +187,9 @@ function SignupForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
-            {error && (
+            {(error || oauthError) && (
               <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-lg">
-                {error}
+                {oauthErrorDescription || error || oauthError}
               </div>
             )}
 

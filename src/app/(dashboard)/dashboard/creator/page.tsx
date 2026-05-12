@@ -1,301 +1,279 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, CardAccent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Briefcase, MessageSquare, TrendingUp, User, ArrowRight, FileText, DollarSign, Eye, Clock, CheckCircle2, Sparkles } from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { 
+  User, Briefcase, MessageSquare, DollarSign, 
+  ArrowRight, FileText, Plus, Target, CheckCircle
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getCreatorProfileAction, getCreatorApplicationStatsAction, getActiveDealsCountAction, getUnreadCountAction } from "@/actions";
+import type { CreatorProfile } from "@/types";
 
-async function getCreatorStats(userId: string) {
-  const supabase = await createClient();
+export default function CreatorDashboard() {
+  const [profile, setProfile] = useState<CreatorProfile | null>(null);
+  const [stats, setStats] = useState({ pending: 0, accepted: 0, rejected: 0, completed: 0, total: 0 });
+  const [activeDeals, setActiveDeals] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: applications } = await supabase
-    .from("campaign_applications")
-    .select("status")
-    .eq("creator_id", userId);
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      setIsLoading(true);
+      
+      const [profileRes, statsRes, dealsRes, messagesRes] = await Promise.all([
+        getCreatorProfileAction(),
+        getCreatorApplicationStatsAction(),
+        getActiveDealsCountAction(),
+        getUnreadCountAction(),
+      ]);
 
-  const { data: messages } = await supabase
-    .from("messages")
-    .select("id, is_read")
-    .eq("sender_id", userId);
+      if (profileRes.success && 'profile' in profileRes) setProfile(profileRes.profile as CreatorProfile | null);
+      if (statsRes.success && 'stats' in statsRes && statsRes.stats) setStats(statsRes.stats);
+      if (dealsRes.success && 'count' in dealsRes && dealsRes.count !== undefined) setActiveDeals(dealsRes.count);
+      if (messagesRes.success && 'count' in messagesRes && messagesRes.count !== undefined) setUnreadMessages(messagesRes.count);
 
-  const { data: deals } = await supabase
-    .from("deals")
-    .select("status")
-    .eq("creator_id", userId);
+      setIsLoading(false);
+    };
+    loadDashboardData();
+  }, []);
 
-  return {
-    applications: {
-      total: applications?.length || 0,
-      pending: applications?.filter((a) => a.status === "pending").length || 0,
-      accepted: applications?.filter((a) => a.status === "accepted").length || 0,
-    },
-    messages: {
-      total: messages?.length || 0,
-      unread: messages?.filter((m) => !m.is_read).length || 0,
-    },
-    deals: {
-      total: deals?.length || 0,
-      active: deals?.filter((d) => d.status === "active").length || 0,
-      completed: deals?.filter((d) => d.status === "completed").length || 0,
-    },
-  };
-}
+  const quickActions = [
+    { label: "Browse Campaigns", href: "/campaigns", icon: Briefcase, color: "text-blue-500" },
+    { label: "Update Profile", href: "/dashboard/creator/profile", icon: User, color: "text-purple-500" },
+    { label: "View Messages", href: "/dashboard/creator/messages", icon: MessageSquare, color: "text-emerald-500" },
+  ];
 
-const statsCards = [
-  {
-    title: "Applications",
-    key: "applications",
-    icon: Briefcase,
-    color: "from-violet-500 to-purple-600",
-    details: (stats: any) => `${stats.applications.pending} pending`,
-  },
-  {
-    title: "Active Deals",
-    key: "deals",
-    icon: DollarSign,
-    color: "from-emerald-500 to-teal-500",
-    details: (stats: any) => `${stats.deals.active} active`,
-  },
-  {
-    title: "Messages",
-    key: "messages",
-    icon: MessageSquare,
-    color: "from-blue-500 to-cyan-500",
-    details: (stats: any) => `${stats.messages.unread} unread`,
-  },
-  {
-    title: "Profile Views",
-    key: "views",
-    icon: Eye,
-    color: "from-amber-500 to-orange-500",
-    details: () => "This month",
-  },
-];
-
-const quickActions = [
-  { href: "/dashboard/creator/campaigns", icon: FileText, label: "Browse Campaigns", color: "bg-violet-500" },
-  { href: "/dashboard/creator/applications", icon: Briefcase, label: "My Applications", color: "bg-blue-500" },
-  { href: "/dashboard/creator/messages", icon: MessageSquare, label: "Messages", color: "bg-emerald-500" },
-  { href: "/dashboard/creator/profile", icon: User, label: "Edit Profile", color: "bg-amber-500" },
-];
-
-export default async function CreatorDashboardPage() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i}>
+              <CardContent className="p-6">
+                <Skeleton className="h-4 w-20 mb-2" />
+                <Skeleton className="h-8 w-16" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
   }
-
-  const { data: userData } = await supabase
-    .from("users")
-    .select("*, creator_profiles(*)")
-    .eq("id", user.id)
-    .single();
-
-  if (userData?.role !== "creator") {
-    redirect("/dashboard/brand");
-  }
-
-  const stats = await getCreatorStats(user.id);
 
   return (
     <div className="space-y-8">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <h1 className="text-3xl font-bold tracking-tight">Welcome back!</h1>
-            <p className="text-muted-foreground mt-1">
-              Here&apos;s an overview of your creator dashboard
-            </p>
-          </motion.div>
+          <h1 className="text-3xl font-bold">Welcome back{profile?.user?.full_name ? `, ${profile.user.full_name.split(' ')[0]}` : ''}!</h1>
+          <p className="text-muted-foreground mt-1">Here&apos;s what&apos;s happening with your creator journey</p>
         </div>
-        <Button className="gap-2" asChild>
-          <Link href="/dashboard/creator/campaigns">
-            <Sparkles className="h-4 w-4" />
-            Find Campaigns
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild>
+            <Link href="/dashboard/creator/profile">
+              <User className="h-4 w-4 mr-2" />
+              Edit Profile
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/campaigns">
+              <Plus className="h-4 w-4 mr-2" />
+              Find Campaigns
+            </Link>
+          </Button>
+        </div>
       </div>
 
-      {/* Profile Status Alert */}
-      {userData?.creator_profiles?.[0]?.username ? (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
         >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center">
-              <CheckCircle2 className="h-5 w-5 text-white" />
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-emerald-700 dark:text-emerald-400">Your profile is live!</p>
-              <p className="text-sm text-muted-foreground">
-                Share your link:{" "}
-                <code className="text-primary font-medium">/creators/{userData.creator_profiles[0].username}</code>
-              </p>
-            </div>
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/creators/${userData.creator_profiles[0].username}`}>
-                View Profile
-                <ArrowRight className="h-4 w-4 ml-1" />
-              </Link>
-            </Button>
-          </div>
-        </motion.div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center">
-              <Sparkles className="h-5 w-5 text-white" />
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-amber-700 dark:text-amber-400">Complete your profile to start receiving offers</p>
-              <p className="text-sm text-muted-foreground">
-                Fill out your creator profile to get matched with brands
-              </p>
-            </div>
-            <Button size="sm" asChild>
-              <Link href="/dashboard/creator/profile">Set up profile</Link>
-            </Button>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {statsCards.map((stat, index) => (
-          <motion.div
-            key={stat.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <Card variant="elevated" className="relative overflow-hidden group hover-lift">
-              <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${stat.color} opacity-10 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-110`} />
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                    <p className="text-2xl font-bold mt-1">
-                      {stat.key === "applications" && stats.applications.total}
-                      {stat.key === "deals" && stats.deals.total}
-                      {stat.key === "messages" && stats.messages.total}
-                      {stat.key === "views" && "0"}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {stat.details(stats)}
-                    </p>
-                  </div>
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg`}>
-                    <stat.icon className="h-6 w-6 text-white" />
-                  </div>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Active Applications</p>
+                  <p className="text-3xl font-bold mt-1">{stats.pending}</p>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
+                <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
+                  <FileText className="h-6 w-6 text-blue-500" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-      {/* Quick Actions & Recent Activity */}
-      <div className="grid gap-6 md:grid-cols-2">
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card variant="glass">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-3">
-              {quickActions.map((action) => (
-                <Button
-                  key={action.href}
-                  variant="outline"
-                  className="justify-start gap-3 h-auto py-3"
-                  asChild
-                >
-                  <Link href={action.href}>
-                    <div className={`w-8 h-8 rounded-lg ${action.color} flex items-center justify-center`}>
-                      <action.icon className="h-4 w-4 text-white" />
-                    </div>
-                    <span className="text-sm">{action.label}</span>
-                  </Link>
-                </Button>
-              ))}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Active Deals</p>
+                  <p className="text-3xl font-bold mt-1">{activeDeals}</p>
+                </div>
+                <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-emerald-500" />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card variant="glass">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-                  <Clock className="h-8 w-8 text-muted-foreground" />
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Unread Messages</p>
+                  <p className="text-3xl font-bold mt-1">{unreadMessages}</p>
                 </div>
-                <p className="text-muted-foreground">No recent activity</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Start by browsing campaigns or completing your profile
-                </p>
-                <Button variant="outline" size="sm" className="mt-4" asChild>
-                  <Link href="/dashboard/creator/campaigns">
-                    Browse Campaigns
-                    <ArrowRight className="h-4 w-4 ml-1" />
-                  </Link>
-                </Button>
+                <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center">
+                  <MessageSquare className="h-6 w-6 text-purple-500" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Completed Deals</p>
+                  <p className="text-3xl font-bold mt-1">{stats.completed}</p>
+                </div>
+                <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
+                  <CheckCircle className="h-6 w-6 text-amber-500" />
+                </div>
               </div>
             </CardContent>
           </Card>
         </motion.div>
       </div>
 
-      {/* Tips Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <Card variant="outline" className="border-dashed">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/25">
-                <Sparkles className="h-6 w-6 text-white" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5" />
+                Quick Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {quickActions.map((action) => (
+                  <Link
+                    key={action.label}
+                    href={action.href}
+                    className="p-4 rounded-lg border hover:bg-muted/50 transition-colors group"
+                  >
+                    <action.icon className={`h-8 w-8 mb-3 ${action.color}`} />
+                    <span className="font-medium group-hover:text-primary transition-colors">
+                      {action.label}
+                    </span>
+                    <ArrowRight className="h-4 w-4 mt-2 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                ))}
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold mb-1">Pro Tip: Optimize Your Profile</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Add your social media handles, showcase your portfolio, and set competitive pricing to attract more brand deals.
+            </CardContent>
+          </Card>
+
+          {!profile && (
+            <Card className="border-dashed">
+              <CardContent className="p-8 text-center">
+                <User className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="font-semibold text-lg mb-2">Complete Your Profile</h3>
+                <p className="text-muted-foreground mb-4">
+                  Add your social media handles and metrics to attract brands
                 </p>
-                <Button size="sm" variant="gradient" asChild>
-                  <Link href="/dashboard/creator/profile">Complete Profile</Link>
+                <Button asChild>
+                  <Link href="/dashboard/creator/profile">Create Profile</Link>
                 </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Profile Completion</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[
+                  { label: "Basic Info", done: !!profile?.username },
+                  { label: "Social Media", done: !!(profile?.instagram_handle || profile?.tiktok_handle || profile?.youtube_channel) },
+                  { label: "Followers", done: profile && (profile.instagram_followers + profile.tiktok_followers + profile.youtube_subscribers) > 0 },
+                  { label: "Bio", done: !!profile?.bio },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center ${item.done ? 'bg-emerald-500' : 'bg-muted'}`}>
+                      {item.done && <CheckCircle className="h-4 w-4 text-white" />}
+                    </div>
+                    <span className={item.done ? "" : "text-muted-foreground"}>
+                      {item.label}
+                    </span>
+                  </div>
+                ))}
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+              <Button variant="outline" className="w-full mt-4" asChild>
+                <Link href="/dashboard/creator/profile">Update Profile</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Application Stats</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Total Applied</span>
+                  <span className="font-semibold">{stats.total}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Accepted</span>
+                  <span className="font-semibold text-emerald-600">{stats.accepted}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Pending</span>
+                  <span className="font-semibold text-amber-600">{stats.pending}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Rejected</span>
+                  <span className="font-semibold text-red-500">{stats.rejected}</span>
+                </div>
+              </div>
+              <Button variant="ghost" className="w-full mt-4" asChild>
+                <Link href="/dashboard/creator/applications">
+                  View All Applications <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
