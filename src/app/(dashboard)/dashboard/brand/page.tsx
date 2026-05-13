@@ -12,32 +12,35 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getBrandCampaignsAction, getDealStatsAction, getUnreadCountAction } from "@/actions";
+import { useAuthStore } from "@/store/use-auth-store";
 import type { Campaign } from "@/types";
 
 export default function BrandDashboard() {
+  const { user } = useAuthStore();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [dealStats, setDealStats] = useState({ active: 0, completed: 0, total_value: 0 });
+  const [dealStats, setDealStats] = useState({ active: 0, completed: 0, total: 0 });
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadDashboardData = async () => {
+      if (!user?.id) return;
       setIsLoading(true);
       
       const [campaignsRes, dealsRes, messagesRes] = await Promise.all([
-        getBrandCampaignsAction(),
-        getDealStatsAction(),
-        getUnreadCountAction(),
+        getBrandCampaignsAction(user.id),
+        getDealStatsAction(user.id, 'brand'),
+        getUnreadCountAction(user.id),
       ]);
 
-      if (campaignsRes.success && 'campaigns' in campaignsRes) setCampaigns(campaignsRes.campaigns || []);
-      if (dealsRes.success && 'stats' in dealsRes && dealsRes.stats) setDealStats(dealsRes.stats);
-      if (messagesRes.success && 'count' in messagesRes && messagesRes.count !== undefined) setUnreadMessages(messagesRes.count);
+      if (campaignsRes.success && 'campaigns' in campaignsRes) setCampaigns((campaignsRes as any).campaigns || []);
+      if (dealsRes.success && 'stats' in dealsRes && dealsRes.stats) setDealStats(dealsRes.stats as any);
+      if (messagesRes.success && 'count' in messagesRes && messagesRes.count !== undefined) setUnreadMessages(messagesRes.count as number);
 
       setIsLoading(false);
     };
     loadDashboardData();
-  }, []);
+  }, [user?.id]);
 
   const openCampaigns = campaigns.filter(c => c.status === 'open');
 
@@ -234,10 +237,8 @@ export default function BrandDashboard() {
             <CardContent>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Total Spent</span>
-                  <span className="font-semibold text-lg">
-                    NPR {dealStats.total_value.toLocaleString()}
-                  </span>
+                  <span className="text-muted-foreground">Total Deals</span>
+                  <span className="font-semibold text-lg">{dealStats.total}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Completed Deals</span>

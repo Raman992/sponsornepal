@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default async function CampaignsPage() {
   const result = await getOpenCampaignsAction(20);
-  const campaigns: Campaign[] = result.success && 'data' in result ? (result.data || []) : [];
+  const campaigns: Campaign[] = result.success && 'campaigns' in (result as any) ? ((result as any).campaigns || []) : [];
 
   return (
     <div className="min-h-screen py-12">

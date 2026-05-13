@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CreatorFilters } from "@/features/creators/components/creator-filters";
-import { CreatorCardSkeleton } from "@/features/creators/components/creator-card";
-import { getTopCreatorsAction } from "@/actions";
+import { CreatorCard, CreatorCardSkeleton } from "@/features/creators/components/creator-card";
+import { getTopCreatorsAction, getCreatorsWithFiltersAction } from "@/actions";
 import type { CreatorProfile } from "@/types";
 
 export const metadata: Metadata = {
@@ -10,9 +10,33 @@ export const metadata: Metadata = {
   description: "Browse and discover Nepali content creators for your brand campaigns",
 };
 
-export default async function CreatorsPage() {
-  const result = await getTopCreatorsAction(20);
-  const creators: (CreatorProfile & { user?: { full_name?: string | null; avatar_url?: string | null } })[] = result.success && 'creators' in result ? (result.creators || []) : [];
+interface CreatorsPageProps {
+  searchParams: Promise<{ search?: string; niche?: string; minFollowers?: string; location?: string; page?: string }>;
+}
+
+export default async function CreatorsPage({ searchParams }: CreatorsPageProps) {
+  const params = await searchParams;
+  const { search, niche, minFollowers, location, page } = params;
+
+  let result;
+  let totalCount = 0;
+
+  if (search || niche || minFollowers) {
+    result = await getCreatorsWithFiltersAction({
+      search,
+      niche,
+      minFollowers: minFollowers ? parseInt(minFollowers) : undefined,
+      page: page ? parseInt(page) : 1,
+    });
+    if (result.success && result.data) {
+      totalCount = result.data.total;
+    }
+  } else {
+    result = await getTopCreatorsAction(20);
+  }
+
+  const creators: (CreatorProfile & { user?: { full_name?: string | null; avatar_url?: string | null; is_verified?: boolean } })[] = 
+    result?.success && 'creators' in (result as any) ? ((result as any).creators || []) : [];
 
   return (
     <div className="min-h-screen py-12">
@@ -33,12 +57,8 @@ export default async function CreatorsPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {creators.length > 0 ? (
-            creators.map((creator: any) => (
-              <div key={creator.id} className="animate-in">
-                <div className="text-lg font-semibold mb-4">
-                  {/* Creator cards would go here */}
-                </div>
-              </div>
+            creators.map((creator) => (
+              <CreatorCard key={creator.id} creator={creator as any} />
             ))
           ) : (
             <>
@@ -51,16 +71,18 @@ export default async function CreatorsPage() {
 
         <div className="mt-12 text-center">
           <p className="text-muted-foreground mb-4">
-            Showing {creators.length} creators
+            Showing {creators.length} creators{totalCount > 0 ? ` of ${totalCount}` : ''}
           </p>
-          <div className="flex justify-center gap-2">
-            <button className="px-4 py-2 border rounded-lg hover:bg-muted transition-colors" disabled>
-              Previous
-            </button>
-            <button className="px-4 py-2 border rounded-lg hover:bg-muted transition-colors" disabled>
-              Next
-            </button>
-          </div>
+          {totalCount > 20 && (
+            <div className="flex justify-center gap-2">
+              <button className="px-4 py-2 border rounded-lg hover:bg-muted transition-colors">
+                Previous
+              </button>
+              <button className="px-4 py-2 border rounded-lg hover:bg-muted transition-colors">
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

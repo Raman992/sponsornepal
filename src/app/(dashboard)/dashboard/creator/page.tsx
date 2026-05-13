@@ -10,10 +10,12 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getCreatorProfileAction, getCreatorApplicationStatsAction, getActiveDealsCountAction, getUnreadCountAction } from "@/actions";
+import { getCreatorApplicationStatsAction, getActiveDealsCountAction, getUnreadCountAction } from "@/actions";
+import { useAuthStore } from "@/store/use-auth-store";
 import type { CreatorProfile } from "@/types";
 
 export default function CreatorDashboard() {
+  const { user } = useAuthStore();
   const [profile, setProfile] = useState<CreatorProfile | null>(null);
   const [stats, setStats] = useState({ pending: 0, accepted: 0, rejected: 0, completed: 0, total: 0 });
   const [activeDeals, setActiveDeals] = useState(0);
@@ -22,24 +24,23 @@ export default function CreatorDashboard() {
 
   useEffect(() => {
     const loadDashboardData = async () => {
+      if (!user?.id) return;
       setIsLoading(true);
       
-      const [profileRes, statsRes, dealsRes, messagesRes] = await Promise.all([
-        getCreatorProfileAction(),
-        getCreatorApplicationStatsAction(),
-        getActiveDealsCountAction(),
-        getUnreadCountAction(),
+      const [statsRes, dealsRes, messagesRes] = await Promise.all([
+        getCreatorApplicationStatsAction(user.id),
+        getActiveDealsCountAction(user.id),
+        getUnreadCountAction(user.id),
       ]);
 
-      if (profileRes.success && 'profile' in profileRes) setProfile(profileRes.profile as CreatorProfile | null);
-      if (statsRes.success && 'stats' in statsRes && statsRes.stats) setStats(statsRes.stats);
-      if (dealsRes.success && 'count' in dealsRes && dealsRes.count !== undefined) setActiveDeals(dealsRes.count);
-      if (messagesRes.success && 'count' in messagesRes && messagesRes.count !== undefined) setUnreadMessages(messagesRes.count);
+      if (statsRes.success && 'stats' in statsRes && statsRes.stats) setStats(statsRes.stats as any);
+      if (dealsRes.success && 'count' in dealsRes && dealsRes.count !== undefined) setActiveDeals(dealsRes.count as number);
+      if (messagesRes.success && 'count' in messagesRes && messagesRes.count !== undefined) setUnreadMessages(messagesRes.count as number);
 
       setIsLoading(false);
     };
     loadDashboardData();
-  }, []);
+  }, [user?.id]);
 
   const quickActions = [
     { label: "Browse Campaigns", href: "/campaigns", icon: Briefcase, color: "text-blue-500" },
