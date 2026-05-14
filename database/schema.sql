@@ -1,17 +1,33 @@
 -- SponsorNepal Database Schema
 -- Run this in your Supabase SQL Editor
 
--- Create User Roles Enum
-CREATE TYPE user_role AS ENUM ('creator', 'brand', 'admin');
+-- Create User Roles Enum (skip if exists)
+DO $$ BEGIN
+  CREATE TYPE user_role AS ENUM ('creator', 'brand', 'admin');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 
--- Create Campaign Status Enum
-CREATE TYPE campaign_status AS ENUM ('draft', 'open', 'in_progress', 'completed', 'cancelled');
+-- Create Campaign Status Enum (skip if exists)
+DO $$ BEGIN
+  CREATE TYPE campaign_status AS ENUM ('draft', 'open', 'in_progress', 'completed', 'cancelled');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 
--- Create Application Status Enum
-CREATE TYPE application_status AS ENUM ('pending', 'accepted', 'rejected', 'completed');
+-- Create Application Status Enum (skip if exists)
+DO $$ BEGIN
+  CREATE TYPE application_status AS ENUM ('pending', 'accepted', 'rejected', 'completed');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 
--- Create Deal Status Enum
-CREATE TYPE deal_status AS ENUM ('pending', 'active', 'completed', 'cancelled');
+-- Create Deal Status Enum (skip if exists)
+DO $$ BEGIN
+  CREATE TYPE deal_status AS ENUM ('pending', 'active', 'completed', 'cancelled');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 
 -- Users Table
 CREATE TABLE users (
@@ -38,7 +54,11 @@ CREATE POLICY "Users can update their own data" ON users
   FOR UPDATE USING (auth.uid() = id);
 
 CREATE POLICY "Service role can do anything on users" ON users
-  USING (auth.role() = 'service_role');
+  USING (auth.role() = 'service_role')
+  WITH CHECK (auth.role() = 'service_role');
+
+CREATE POLICY "Users can insert their own profile" ON users
+  FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- Creator Profiles Table
 CREATE TABLE creator_profiles (
@@ -348,11 +368,21 @@ CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.users (id, email, role, full_name)
-  VALUES (NEW.id, NEW.email, COALESCE(NEW.user_metadata->>'role', 'creator')::user_role, NEW.raw_user_meta_data->>'full_name')
-  ON CONFLICT (id) DO NOTHING;
+  SELECT 
+    NEW.id, 
+    NEW.email, 
+    COALESCE(
+      (NEW.raw_user_meta_data->>'role')::user_role, 
+      'creator'::user_role
+    ),
+    COALESCE(NEW.raw_user_meta_data->>'full_name', '')
+  WHERE NOT EXISTS (
+    SELECT 1 FROM public.users WHERE id = NEW.id
+  );
+  
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Create trigger for new user signup
 CREATE TRIGGER on_auth_user_created
