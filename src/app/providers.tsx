@@ -3,7 +3,7 @@
 import { type ReactNode } from "react";
 import { QueryProvider } from "@/providers/query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
-import { AuthProvider } from "@/providers/auth-provider";
+import { Providers as AuthProviders } from "@/providers/auth-provider";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
@@ -14,9 +14,9 @@ export function Providers({ children }: { children: ReactNode }) {
       disableTransitionOnChange
     >
       <QueryProvider>
-        <AuthProvider>
+        <AuthProviders>
           {children}
-        </AuthProvider>
+        </AuthProviders>
       </QueryProvider>
     </ThemeProvider>
   );

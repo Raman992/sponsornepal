@@ -13,7 +13,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-import type { UserRole } from "@/types";
+import type { UserRole } from "@/store/auth-store";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const signupSchema = z.object({
