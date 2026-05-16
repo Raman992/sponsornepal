@@ -10,6 +10,8 @@ import {
   MapPin,
   Globe,
   CheckCircle2,
+  Loader2,
+  Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +27,8 @@ import { useUIStore } from "@/store/ui-store";
 import { updateCreatorProfileAction } from "@/actions/creator.actions";
 import { toast } from "@/store/ui-store";
 import { cn } from "@/lib/utils";
+import { CiYoutube } from "react-icons/ci";
+import { FaTwitter } from "react-icons/fa";
 
 const niches = [
   { value: "tech", label: "Tech & Gadgets" },
@@ -274,11 +278,11 @@ export default function CreatorProfilePage() {
                         <div>
                           <label className="text-sm font-medium mb-2 block">Niche</label>
                           <Select
-                            value={form.watch("niche")}
+                            value={form.watch("niche") || ""}
                             onValueChange={(value) => form.setValue("niche", value)}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Select your niche" />
+                              <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                               {niches.map((niche) => (
@@ -383,19 +387,19 @@ export default function CreatorProfilePage() {
                     <div className="grid gap-4 md:grid-cols-3">
                       <div>
                         <label className="text-sm font-medium mb-2 flex items-center gap-2">
-                          <Instagram className="h-4 w-4" />
+                          <Share2 className="h-4 w-4" />
                           Instagram Followers
                         </label>
                         <Input
                           type="number"
                           placeholder="0"
-                          defaultValue={profile?.instagram_followers}
+                          defaultValue={profile?.instagram_followers || 0}
                         />
                       </div>
 
                       <div>
                         <label className="text-sm font-medium mb-2 flex items-center gap-2">
-                          <Twitter className="h-4 w-4" />
+                          <FaTwitter className="h-4 w-4" />
                           TikTok Followers
                         </label>
                         <Input
@@ -407,7 +411,7 @@ export default function CreatorProfilePage() {
 
                       <div>
                         <label className="text-sm font-medium mb-2 flex items-center gap-2">
-                          <Youtube className="h-4 w-4" />
+                          <CiYoutube className="h-4 w-4" />
                           YouTube Subscribers
                         </label>
                         <Input
