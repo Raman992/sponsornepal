@@ -57,7 +57,7 @@ export default async function CreatorProfilePage({ params }: CreatorProfilePageP
   return (
     <div className="min-h-screen">
       {/* Banner Section */}
-      <div className="relative h-48 md:h-64 bg-gradient-to-br from-primary/20 via-violet-500/20 to-fuchsia-500/20">
+      <div className="relative h-48 md:h-64 bg-gradient-to-br from-primary/20 via-neutral-500/20 to-neutral-500/20">
         {creator.banner_url && (
           <img 
             src={creator.banner_url} 
@@ -74,7 +74,7 @@ export default async function CreatorProfilePage({ params }: CreatorProfilePageP
           <div className="relative">
             <Avatar className="h-32 w-32 md:h-40 md:w-40 ring-4 ring-background shadow-xl">
               <AvatarImage src={creator.user?.avatar_url || ""} alt={creator.user?.full_name || ""} />
-              <AvatarFallback className="bg-gradient-to-br from-primary to-violet-600 text-white text-3xl font-bold">
+              <AvatarFallback className="bg-gradient-to-br from-primary to-neutral-600 text-white text-3xl font-bold">
                 {creator.user?.full_name?.charAt(0) || creator.username?.charAt(0)}
               </AvatarFallback>
             </Avatar>
@@ -128,7 +128,7 @@ export default async function CreatorProfilePage({ params }: CreatorProfilePageP
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-pink-500 mb-1">
+              <div className="text-2xl font-bold text-foreground mb-1">
                 {formatNumber(creator.instagram_followers || 0)}
               </div>
               <div className="text-sm text-muted-foreground">Instagram</div>

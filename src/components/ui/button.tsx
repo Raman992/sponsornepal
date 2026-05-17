@@ -22,7 +22,7 @@ const buttonVariants = cva(
         gradient:
           "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:brightness-105",
         "gradient-vibrant":
-          "bg-gradient-to-r from-primary via-violet-500 to-fuchsia-500 text-white shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:brightness-105",
+          "bg-gradient-to-r from-violet-600 via-violet-500 to-fuchsia-500 text-white shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:brightness-105",
         glass:
           "glass text-foreground hover:bg-white/10 dark:hover:bg-white/5 border border-white/20",
         subtle:

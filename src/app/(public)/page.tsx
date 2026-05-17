@@ -216,7 +216,7 @@ export default function HomePage() {
               opacity: [0.2, 0.4, 0.2],
             }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute -bottom-1/4 -left-1/4 w-[500px] h-[500px] bg-violet-500/20 rounded-full blur-[100px]"
+            className="absolute -bottom-1/4 -left-1/4 w-[500px] h-[500px] bg-neutral-500/20 rounded-full blur-[100px]"
           />
         </div>
 
@@ -392,7 +392,7 @@ export default function HomePage() {
                 )}
                 <Card variant="outline" className="h-full text-center group hover:border-primary/50 transition-colors">
                   <CardContent className="p-6">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-neutral-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
                       <item.icon className="h-8 w-8 text-white" />
                     </div>
                     <div className="text-4xl font-bold text-primary/20 mb-2">{item.step}</div>
@@ -464,9 +464,9 @@ export default function HomePage() {
                   <CardContent className="p-8">
                     <div className="space-y-4">
                       {[
-                        { name: "Creative Nepali", followers: "15K+ followers", platform: "Instagram", color: "from-pink-500 to-rose-500" },
-                        { name: "Tech Reviewer NP", followers: "50K+ subscribers", platform: "YouTube", color: "from-red-500 to-orange-500" },
-                        { name: "Fitness with Aashish", followers: "100K+ followers", platform: "TikTok", color: "from-cyan-500 to-blue-500" },
+                        { name: "Creative Nepali", followers: "15K+ followers", platform: "Instagram", color: "from-neutral-500 to-neutral-600" },
+                        { name: "Tech Reviewer NP", followers: "50K+ subscribers", platform: "YouTube", color: "from-neutral-500 to-neutral-600" },
+                        { name: "Fitness with Aashish", followers: "100K+ followers", platform: "TikTok", color: "from-neutral-500 to-neutral-600" },
                       ].map((creator, i) => (
                         <div key={creator.name} className="flex items-center gap-4 p-4 rounded-xl bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors">
                           <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${creator.color} flex items-center justify-center text-white font-bold text-lg shadow-lg`}>
@@ -503,7 +503,7 @@ export default function HomePage() {
               transition={{ duration: 0.6 }}
               className="lg:order-2"
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-blue-500/10 to-indigo-500/10 text-blue-600 text-sm font-medium mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-neutral-500/10 to-neutral-500/10 text-foreground text-sm font-medium mb-4">
                 <Briefcase className="h-4 w-4" />
                 For Brands
               </div>
@@ -524,8 +524,8 @@ export default function HomePage() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                      <benefit.icon className="h-5 w-5 text-blue-600" />
+                    <div className="w-10 h-10 rounded-lg bg-neutral-500/10 flex items-center justify-center flex-shrink-0">
+                      <benefit.icon className="h-5 w-5 text-foreground" />
                     </div>
                     <span className="text-foreground">{benefit.text}</span>
                   </motion.li>
@@ -547,14 +547,14 @@ export default function HomePage() {
               className="lg:order-1"
             >
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-3xl blur-3xl" />
+                <div className="absolute inset-0 bg-gradient-to-r from-neutral-500/20 to-neutral-500/20 rounded-3xl blur-3xl" />
                 <Card variant="glass" className="relative">
                   <CardContent className="p-8">
                     <div className="space-y-4">
                       {[
-                        { name: "Tech Brand Campaign", status: "Active", applications: 12, color: "bg-emerald-500" },
-                        { name: "Fashion Brand Launch", status: "Open", applications: 28, color: "bg-blue-500" },
-                        { name: "Food & Dining", status: "Completed", applications: 5, color: "bg-purple-500" },
+                        { name: "Tech Brand Campaign", status: "Active", applications: 12, color: "bg-neutral-500" },
+                        { name: "Fashion Brand Launch", status: "Open", applications: 28, color: "bg-neutral-500" },
+                        { name: "Food & Dining", status: "Completed", applications: 5, color: "bg-neutral-500" },
                       ].map((campaign, i) => (
                         <div key={campaign.name} className="p-4 rounded-xl bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors">
                           <div className="flex justify-between items-center mb-2">
@@ -613,7 +613,7 @@ export default function HomePage() {
                 >
                   {plan.popular && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <div className="bg-gradient-to-r from-primary to-violet-600 text-white text-xs font-bold px-4 py-1 rounded-full shadow-lg">
+                      <div className="bg-gradient-to-r from-primary to-neutral-600 text-white text-xs font-bold px-4 py-1 rounded-full shadow-lg">
                         MOST POPULAR
                       </div>
                     </div>
@@ -653,7 +653,7 @@ export default function HomePage() {
 
       {/* Testimonials Section */}
       <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-500/5 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-neutral-500/5 to-transparent" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <motion.div 
@@ -662,7 +662,7 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 text-violet-600 text-sm font-medium mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-500/10 text-foreground text-sm font-medium mb-4">
               <Star className="h-4 w-4" />
               Testimonials
             </div>
@@ -684,7 +684,7 @@ export default function HomePage() {
                 <Card variant="glass" className="h-full">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-neutral-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
                         {testimonial.avatar}
                       </div>
                       <div>
@@ -716,7 +716,7 @@ export default function HomePage() {
           >
             <Card variant="gradient" className="relative overflow-hidden">
               {/* Background decoration */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary via-violet-600 to-fuchsia-600" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary via-neutral-600 to-neutral-700" />
               <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRoLTJ2LTRoMnY0em0wLTZ2LTRoLTJ2NGgyem0tNiA2aC00djJoNHYtMnptMC02di00aC00djRoNHptLTYgNmgtNHYyaDR2LTJ6bTAtNnYtNGgtNHY0aDR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50" />
               
               <CardContent className="relative p-12 md:p-16 text-center">
