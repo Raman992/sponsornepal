@@ -116,7 +116,7 @@ function LoginForm() {
       {/* Background decoration */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neutral-500/10 rounded-full blur-3xl" />
       </div>
 
       <motion.div
@@ -125,14 +125,14 @@ function LoginForm() {
         className="w-full max-w-md"
       >
         <Card variant="glass" className="relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-violet-500 to-fuchsia-500" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-neutral-500 to-neutral-500" />
 
           <CardHeader className="space-y-1 text-center pb-2">
             <Link
               href="/"
               className="flex items-center justify-center gap-2 mb-4"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-violet-600 to-fuchsia-500 flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-neutral-600 to-neutral-500 flex items-center justify-center shadow-lg">
                 <Sparkles className="h-5 w-5 text-white" />
               </div>
             </Link>

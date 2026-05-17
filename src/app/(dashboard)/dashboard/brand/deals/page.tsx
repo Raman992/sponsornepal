@@ -18,7 +18,7 @@ interface DealWithMeta extends Deal {
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-500",
   active: "bg-green-500",
-  completed: "bg-blue-500",
+  completed: "bg-neutral-500",
   cancelled: "bg-red-500",
 };
 
@@ -99,8 +99,8 @@ export default function BrandDealsPage() {
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-500/10 rounded-lg">
-              <DollarSign className="h-6 w-6 text-blue-500" />
+            <div className="p-3 bg-neutral-500/10 rounded-lg">
+              <DollarSign className="h-6 w-6 text-neutral-500" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Total Value</p>

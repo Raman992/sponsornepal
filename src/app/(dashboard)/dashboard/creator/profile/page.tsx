@@ -191,12 +191,12 @@ export default function CreatorProfilePage() {
                   <CardContent className="p-6">
                     {/* Avatar Section */}
                     <div className="relative mb-6">
-                      <div className="w-full h-32 rounded-xl bg-gradient-to-r from-primary/20 to-violet-500/20" />
+                      <div className="w-full h-32 rounded-xl bg-gradient-to-r from-primary/20 to-neutral-500/20" />
                       <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
                         <div className="relative">
                           <Avatar className="h-24 w-24 ring-4 ring-background">
                             <AvatarImage src={user?.avatar_url || undefined} />
-                            <AvatarFallback className="bg-gradient-to-br from-primary to-violet-600 text-white text-2xl font-bold">
+                            <AvatarFallback className="bg-gradient-to-br from-primary to-neutral-600 text-white text-2xl font-bold">
                               {initials}
                             </AvatarFallback>
                           </Avatar>

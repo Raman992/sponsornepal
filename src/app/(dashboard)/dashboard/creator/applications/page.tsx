@@ -57,7 +57,7 @@ export default function CreatorApplicationsPage() {
     pending: { icon: Clock, color: "bg-amber-500/10 text-amber-600", label: "Pending" },
     accepted: { icon: CheckCircle2, color: "bg-emerald-500/10 text-emerald-600", label: "Accepted" },
     rejected: { icon: XCircle, color: "bg-red-500/10 text-red-600", label: "Rejected" },
-    completed: { icon: CheckCircle2, color: "bg-violet-500/10 text-violet-600", label: "Completed" },
+    completed: { icon: CheckCircle2, color: "bg-neutral-500/10 text-foreground", label: "Completed" },
   };
 
   const getStatusCounts = () => ({
@@ -160,7 +160,7 @@ export default function CreatorApplicationsPage() {
                         <Card className="hover-lift">
                           <CardContent className="p-6">
                             <div className="flex flex-col md:flex-row md:items-center gap-4">
-                              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-violet-500/20 flex items-center justify-center flex-shrink-0">
+                              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-neutral-500/20 flex items-center justify-center flex-shrink-0">
                                 <Briefcase className="h-6 w-6 text-primary" />
                               </div>
                               

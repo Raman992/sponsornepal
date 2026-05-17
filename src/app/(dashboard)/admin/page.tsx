@@ -125,8 +125,8 @@ export default function AdminDashboard() {
                   <p className="text-sm text-muted-foreground">Total Users</p>
                   <p className="text-3xl font-bold mt-1">{stats.totalUsers}</p>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-blue-500" />
+                <div className="w-12 h-12 rounded-full bg-neutral-500/10 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-neutral-500" />
                 </div>
               </div>
             </CardContent>
@@ -165,8 +165,8 @@ export default function AdminDashboard() {
                   <p className="text-sm text-muted-foreground">Active Deals</p>
                   <p className="text-3xl font-bold mt-1">{stats.activeDeals}</p>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-purple-500" />
+                <div className="w-12 h-12 rounded-full bg-neutral-500/10 flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-neutral-500" />
                 </div>
               </div>
             </CardContent>
@@ -203,8 +203,8 @@ export default function AdminDashboard() {
             <div className="space-y-4">
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-                    <Users className="h-5 w-5 text-blue-500" />
+                  <div className="w-10 h-10 rounded-full bg-neutral-500/10 flex items-center justify-center">
+                    <Users className="h-5 w-5 text-neutral-500" />
                   </div>
                   <span>Creators</span>
                 </div>
@@ -221,8 +221,8 @@ export default function AdminDashboard() {
               </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
-                    <Shield className="h-5 w-5 text-purple-500" />
+                  <div className="w-10 h-10 rounded-full bg-neutral-500/10 flex items-center justify-center">
+                    <Shield className="h-5 w-5 text-neutral-500" />
                   </div>
                   <span>Admins</span>
                 </div>

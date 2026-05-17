@@ -57,91 +57,80 @@
 
 @layer base {
   :root {
-    /* Modern SaaS Color System - Violet/Indigo Primary */
+    /* Monochrome — Black/White/Grey only */
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    
-    /* Primary: Rich Violet-Indigo */
-    --primary: 258 90% 66%;
+    --popover-foreground: 0 0% 3.9%;
+
+    --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
-    
-    /* Secondary: Soft Slate */
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    
-    /* Muted: Cool Gray */
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    
-    /* Accent: Soft Violet */
-    --accent: 258 70% 96%;
-    --accent-foreground: 258 90% 30%;
-    
-    /* Destructive: Rose Red */
+
+    --secondary: 0 0% 95.9%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 0 0% 95.9%;
+    --muted-foreground: 0 0% 46.1%;
+
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 30%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
-    
-    /* Borders and Inputs */
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 258 90% 66%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 0%;
     --radius: 0.75rem;
-    
-    /* Sidebar */
+
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 258 90% 66%;
+    --sidebar-foreground: 0 0% 26.1%;
+    --sidebar-primary: 0 0% 0%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    
-    /* Success: Emerald */
+    --sidebar-accent: 0 0% 95.9%;
+    --sidebar-accent-foreground: 0 0% 10%;
+
     --success: 160 84% 39%;
     --success-foreground: 0 0% 100%;
-    
-    /* Warning: Amber */
+
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
   }
 
   .dark {
-    --background: 240 6% 10%;
+    --background: 0 0% 10%;
     --foreground: 0 0% 98%;
-    --card: 240 6% 14%;
+    --card: 0 0% 14%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 6% 14%;
+    --popover: 0 0% 14%;
     --popover-foreground: 0 0% 98%;
-    
-    /* Primary: Vibrant Violet in Dark */
-    --primary: 258 90% 70%;
-    --primary-foreground: 240 6% 10%;
-    
-    --secondary: 240 3.7% 15.9%;
+
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+
+    --secondary: 0 0% 15.9%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    
-    /* Accent: Deep Violet in Dark */
-    --accent: 258 50% 20%;
-    --accent-foreground: 258 90% 80%;
-    
+    --muted: 0 0% 15.9%;
+    --muted-foreground: 0 0% 64.9%;
+
+    --accent: 0 0% 20%;
+    --accent-foreground: 0 0% 80%;
+
     --destructive: 0 62.8% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 258 90% 70%;
-    
-    --sidebar-background: 240 6% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 258 90% 70%;
-    --sidebar-primary-foreground: 240 6% 10%;
-    --sidebar-accent: 240 3.7% 15.9%;
+    --border: 0 0% 15.9%;
+    --input: 0 0% 15.9%;
+    --ring: 0 0% 100%;
+
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 95.9%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 15.9%;
     --sidebar-accent-foreground: 0 0% 98%;
-    
+
     --success: 160 84% 45%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 55%;
@@ -201,7 +190,7 @@
   }
   
   .gradient-text-vibrant {
-    background: linear-gradient(135deg, oklch(var(--primary)) 0%, #ec4899 100%);
+    background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
