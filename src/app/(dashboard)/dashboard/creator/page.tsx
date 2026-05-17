@@ -109,7 +109,7 @@ export default function CreatorDashboardPage() {
               <Link href="/dashboard/creator/profile">
                 <Avatar className="h-9 w-9 ring-2 ring-primary/10">
                   <AvatarImage src={user?.avatar_url || undefined} />
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-violet-600 text-white text-sm font-medium">
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-neutral-600 text-white text-sm font-medium">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
@@ -129,10 +129,10 @@ export default function CreatorDashboardPage() {
               <Card variant="glass" className="hover-lift">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                      <FileText className="h-6 w-6 text-blue-600" />
+                    <div className="w-12 h-12 rounded-xl bg-neutral-500/10 flex items-center justify-center">
+                      <FileText className="h-6 w-6 text-neutral-600" />
                     </div>
-                    <Badge variant="secondary" className="bg-blue-500/10 text-blue-600">Active</Badge>
+                    <Badge variant="secondary" className="bg-neutral-500/10 text-neutral-600">Active</Badge>
                   </div>
                   <div className="mt-4">
                     <div className="text-3xl font-bold">{stats.activeApplications}</div>
@@ -171,10 +171,10 @@ export default function CreatorDashboardPage() {
               <Card variant="glass" className="hover-lift">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center">
-                      <MessageSquare className="h-6 w-6 text-violet-600" />
+                    <div className="w-12 h-12 rounded-xl bg-neutral-500/10 flex items-center justify-center">
+                      <MessageSquare className="h-6 w-6 text-neutral-600" />
                     </div>
-                    <Badge variant="secondary" className="bg-violet-500/10 text-violet-600">
+                    <Badge variant="secondary" className="bg-neutral-500/10 text-neutral-600">
                       {stats.unreadMessages} new
                     </Badge>
                   </div>
@@ -221,7 +221,7 @@ export default function CreatorDashboardPage() {
                 <Card variant="elevated" className="h-full group hover-lift cursor-pointer">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform">
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-neutral-600 flex items-center justify-center shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform">
                         <Briefcase className="h-7 w-7 text-white" />
                       </div>
                       <div className="flex-1">
@@ -244,7 +244,7 @@ export default function CreatorDashboardPage() {
                 <Card variant="elevated" className="h-full group hover-lift cursor-pointer">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:scale-110 transition-transform">
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-neutral-500 to-neutral-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:scale-110 transition-transform">
                         <User className="h-7 w-7 text-white" />
                       </div>
                       <div className="flex-1">
@@ -267,7 +267,7 @@ export default function CreatorDashboardPage() {
                 <Card variant="elevated" className="h-full group hover-lift cursor-pointer">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform">
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-neutral-500 to-neutral-600 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform">
                         <TrendingUp className="h-7 w-7 text-white" />
                       </div>
                       <div className="flex-1">
@@ -319,7 +319,7 @@ export default function CreatorDashboardPage() {
                           key={app.id}
                           className="flex items-center gap-4 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
                         >
-                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-violet-500/20 flex items-center justify-center">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-neutral-500/20 flex items-center justify-center">
                             <Briefcase className="h-5 w-5 text-primary" />
                           </div>
                           <div className="flex-1 min-w-0">

@@ -35,7 +35,7 @@ export function CreatorCard({ creator }: CreatorCardProps) {
       <Link href={`/creators/${creator.username}`}>
         <Card className="h-full overflow-hidden hover-lift group cursor-pointer">
           {/* Banner */}
-          <div className="relative h-24 bg-gradient-to-r from-primary/20 to-violet-500/20">
+          <div className="relative h-24 bg-gradient-to-r from-primary/20 to-neutral-500/20">
             {creator.banner_url && (
               <img 
                 src={creator.banner_url} 
@@ -48,7 +48,7 @@ export function CreatorCard({ creator }: CreatorCardProps) {
             <div className="absolute -bottom-8 left-4">
               <Avatar className="h-16 w-16 ring-4 ring-background">
                 <AvatarImage src={user?.avatar_url || undefined} />
-                <AvatarFallback className="bg-gradient-to-br from-primary to-violet-600 text-white text-xl font-bold">
+                <AvatarFallback className="bg-gradient-to-br from-primary to-neutral-600 text-white text-xl font-bold">
                   {initials}
                 </AvatarFallback>
               </Avatar>

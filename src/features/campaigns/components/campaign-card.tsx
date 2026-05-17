@@ -16,8 +16,8 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
   const statusColors: Record<string, string> = {
     draft: "bg-gray-500/10 text-gray-600",
     open: "bg-emerald-500/10 text-emerald-600",
-    in_progress: "bg-blue-500/10 text-blue-600",
-    completed: "bg-violet-500/10 text-violet-600",
+    in_progress: "bg-neutral-500/10 text-foreground",
+    completed: "bg-neutral-500/10 text-foreground",
     cancelled: "bg-red-500/10 text-red-600",
   };
 
@@ -40,7 +40,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={campaign.brand?.avatar_url || undefined} />
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-violet-600 text-white text-sm font-medium">
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-neutral-600 text-white text-sm font-medium">
                     {initials}
                   </AvatarFallback>
                 </Avatar>

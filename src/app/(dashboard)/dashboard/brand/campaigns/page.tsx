@@ -56,8 +56,8 @@ export default function BrandCampaignsPage() {
   const statusColors: Record<string, string> = {
     draft: "bg-gray-500/10 text-gray-600",
     open: "bg-emerald-500/10 text-emerald-600",
-    in_progress: "bg-blue-500/10 text-blue-600",
-    completed: "bg-violet-500/10 text-violet-600",
+    in_progress: "bg-neutral-500/10 text-foreground",
+    completed: "bg-neutral-500/10 text-foreground",
     cancelled: "bg-red-500/10 text-red-600",
   };
 

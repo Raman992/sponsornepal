@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -83,9 +84,13 @@ export function DashboardSidebar() {
         {/* Logo */}
         <div className="flex h-16 items-center justify-between border-b px-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/25">
-              <span className="text-primary-foreground font-bold text-lg">S</span>
-            </div>
+            <Image
+              src="/sponsornepal_logo.png"
+              alt="SponsorNepal"
+              width={40}
+              height={40}
+              className="h-10 w-auto rounded-lg"
+            />
             {sidebarOpen && (
               <motion.span
                 initial={{ opacity: 0 }}
