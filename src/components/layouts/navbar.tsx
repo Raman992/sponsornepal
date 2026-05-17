@@ -51,7 +51,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-violet-600 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-primary/30 group-hover:shadow-primary/50 transition-shadow">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-neutral-600 to-neutral-500 flex items-center justify-center shadow-lg shadow-primary/30 group-hover:shadow-primary/50 transition-shadow">
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight">
@@ -98,7 +98,7 @@ export function Navbar() {
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 ml-2">
                     <Avatar className="h-10 w-10 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
                       <AvatarImage src={user.avatar_url || ""} alt={user.full_name || ""} />
-                      <AvatarFallback className="bg-gradient-to-br from-primary to-violet-600 text-white font-medium">
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-neutral-600 text-white font-medium">
                         {getInitials(user.full_name || "U")}
                       </AvatarFallback>
                     </Avatar>

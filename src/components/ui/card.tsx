@@ -114,7 +114,7 @@ const CardAccent = React.forwardRef<
         accentColor === "success" && "bg-emerald-500",
         accentColor === "warning" && "bg-amber-500",
         accentColor === "destructive" && "bg-destructive",
-        accentColor === "gradient" && "bg-gradient-to-r from-primary via-violet-500 to-fuchsia-500",
+        accentColor === "gradient" && "bg-gradient-to-r from-primary via-neutral-500 to-neutral-600",
       )} 
     />
     <div className="pt-6">{props.children}</div>

@@ -61,7 +61,7 @@ export function DashboardHeader({ title, description, actions }: DashboardHeader
           <Link href="/dashboard/profile" className="block">
             <Avatar className="h-9 w-9 ring-2 ring-primary/10">
               <AvatarImage src={user?.avatar_url || undefined} alt={user?.full_name || "User"} />
-              <AvatarFallback className="bg-gradient-to-br from-primary to-violet-600 text-white text-sm font-medium">
+              <AvatarFallback className="bg-gradient-to-br from-primary to-neutral-600 text-white text-sm font-medium">
                 {initials}
               </AvatarFallback>
             </Avatar>
