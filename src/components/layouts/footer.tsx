@@ -47,9 +47,7 @@ export function Footer() {
           {/* Brand Column */}
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-6 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-neutral-600 to-neutral-500 flex items-center justify-center shadow-lg shadow-primary/25 group-hover:shadow-primary/40 transition-shadow">
-                <Sparkles className="h-5 w-5 text-white" />
-              </div>
+                <img src="sponsornepal_logo.png" alt="SponsorNepal Logo" className="w-20 h-20" />
               <span className="text-xl font-bold tracking-tight">
                 Sponsor<span className="text-primary">Nepal</span>
               </span>

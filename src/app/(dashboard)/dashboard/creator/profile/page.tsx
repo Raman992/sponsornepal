@@ -405,7 +405,7 @@ export default function CreatorProfilePage() {
                         <Input
                           type="number"
                           placeholder="0"
-                          defaultValue={profile?.tiktok_followers}
+                          // defaultValue={profile?.tiktok_followers}
                         />
                       </div>
 
@@ -417,7 +417,7 @@ export default function CreatorProfilePage() {
                         <Input
                           type="number"
                           placeholder="0"
-                          defaultValue={profile?.youtube_subscribers}
+                          // defaultValue={profile?.youtube_subscribers}
                         />
                       </div>
                     </div>
