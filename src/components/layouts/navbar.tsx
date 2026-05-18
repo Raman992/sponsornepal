@@ -53,10 +53,10 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <Image
-              src="/sponsornepal_logo.png"
+              src="/sponsornepal_nav_logo.png"
               alt="SponsorNepal"
-              width={60}
-              height={60}
+              width={100}
+              height={100}
               className="h-10 w-auto rounded-lg"
             />
           </Link>
