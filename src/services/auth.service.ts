@@ -68,13 +68,17 @@ export class AuthService {
 
   async signInWithGoogle(role?: 'creator' | 'brand'): Promise<{ error: AuthError | null }> {
     try {
+      const redirectUrl = process.env.NEXT_PUBLIC_APP_URL 
+        ? `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?role=${role || 'creator'}`
+        : `http://localhost:3000/auth/callback?role=${role || 'creator'}`;
+
       const { error } = await this.supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           queryParams: {
             prompt: 'select_account',
           },
-          redirectTo: `${window.location.origin}/auth/callback?role=${role || 'creator'}`,
+          redirectTo: redirectUrl,
         },
       });
 
@@ -101,8 +105,12 @@ export class AuthService {
 
   async resetPassword(email: string): Promise<{ error: AuthError | null }> {
     try {
+      const redirectUrl = process.env.NEXT_PUBLIC_APP_URL 
+        ? `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password`
+        : 'http://localhost:3000/auth/reset-password';
+
       const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+        redirectTo: redirectUrl,
       });
 
       if (error) {
