@@ -213,7 +213,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative pb-20 lg:pb-32">
         <div className="flex justify-center">
-        <img src="sponsornepal_logo.png" alt="SponsorNepal Logo" className="w-[65vw] md:w-70 mb-2" />
+        <img src="sponsornepal_logo.png" alt="SponsorNepal Logo" className="w-[65vw] md:w-70 mb-2 lg:-mt-4" />
         </div>
         {/* Animated background blobs */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
