@@ -25,9 +25,29 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const campaign = await getCampaignById(id);
 
+  if (!campaign) {
+    return { title: "Campaign Not Found" };
+  }
+
+  const description = campaign.description?.slice(0, 160) || "View campaign details and apply on SponsorNepal";
+
   return {
-    title: campaign ? `${campaign.title} - SponsorNepal` : "Campaign Not Found",
-    description: campaign?.description || "View campaign details and apply",
+    title: campaign.title,
+    description,
+    alternates: {
+      canonical: `/campaigns/${campaign.id}`,
+    },
+    openGraph: {
+      title: `${campaign.title} - SponsorNepal Campaign`,
+      description,
+      url: `/campaigns/${campaign.id}`,
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title: `${campaign.title} - SponsorNepal Campaign`,
+      description,
+    },
   };
 }
 
@@ -60,7 +80,7 @@ async function CampaignDetails({ id }: { id: string }) {
     notFound();
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const isLoggedIn = !!user;
 

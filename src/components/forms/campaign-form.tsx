@@ -127,11 +127,11 @@ export function CampaignForm({ onSuccess }: CampaignFormProps) {
           <div>
             <label className="text-sm font-medium mb-2 block">Campaign Type *</label>
             <Select
-              value={watch("campaign_type")}
+              value={watch("campaign_type") || undefined}
               onValueChange={(value) => setValue("campaign_type", value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select campaign type" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {campaignTypes.map((type) => (
