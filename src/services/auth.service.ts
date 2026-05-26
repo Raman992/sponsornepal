@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import type { User } from '@/store/auth-store';
+import { sendEmail } from '@/lib/email/send';
+import { welcomeEmailTemplate } from '@/lib/email/templates';
 
 export interface AuthError {
   message: string;
@@ -56,6 +58,14 @@ export class AuthService {
 
       if (data.user) {
         const userData = await this.getUserData(data.user.id);
+
+        // Send welcome email (non-blocking)
+        sendEmail({
+          to: email,
+          subject: "Welcome to SponsorNepal!",
+          html: welcomeEmailTemplate(fullName),
+        }).catch((err) => console.warn("Welcome email failed:", err));
+
         return { user: userData, error: null };
       }
 

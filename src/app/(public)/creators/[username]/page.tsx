@@ -22,15 +22,33 @@ interface CreatorProfilePageProps {
 export async function generateMetadata({ params }: CreatorProfilePageProps): Promise<Metadata> {
   const { username } = await params;
   const result = await getCreatorByUsernameAction(username);
-  
+
   if (!result.success || !result.data?.creator) {
     return { title: "Creator Not Found" };
   }
-  
+
   const creator = result.data.creator;
+  const name = creator.user?.full_name || creator.username;
+  const description = creator.bio || `View ${creator.username}'s profile on SponsorNepal`;
+
   return {
-    title: `${creator.user?.full_name || creator.username} - Creator Profile`,
-    description: creator.bio || `View ${creator.username}'s profile on SponsorNepal`,
+    title: `${name} - Creator Profile`,
+    description,
+    alternates: {
+      canonical: `/creators/${creator.username}`,
+    },
+    openGraph: {
+      title: `${name} - SponsorNepal Creator`,
+      description,
+      url: `/creators/${creator.username}`,
+      type: "profile",
+      images: creator.banner_url ? [{ url: creator.banner_url, width: 1200, height: 400 }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${name} - SponsorNepal Creator`,
+      description,
+    },
   };
 }
 
@@ -177,7 +195,7 @@ export default async function CreatorProfilePage({ params }: CreatorProfilePageP
                     <CardContent className="p-6">
                       <h3 className="font-semibold mb-4">Previous Sponsors</h3>
                       <div className="flex flex-wrap gap-2">
-                        {creator.previous_sponsors.map((sponsor) => (
+                        {creator.previous_sponsors.map((sponsor: string) => (
                           <Badge key={sponsor} variant="outline">
                             {sponsor}
                           </Badge>
@@ -226,7 +244,7 @@ export default async function CreatorProfilePage({ params }: CreatorProfilePageP
                     <CardContent className="p-6">
                       <h3 className="font-semibold mb-4">Languages</h3>
                       <div className="flex flex-wrap gap-2">
-                        {creator.languages.map((lang) => (
+                        {creator.languages.map((lang: string) => (
                           <Badge key={lang} variant="secondary">
                             {lang}
                           </Badge>
