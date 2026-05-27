@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema } from "@/lib/validations";
-import { signInAction } from "@/actions";
+import { loginSchema } from "@/lib/validations/auth";
+import { loginAction } from "@/actions/auth.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,7 +38,7 @@ export function LoginForm() {
     formData.append("email", data.email);
     formData.append("password", data.password);
 
-    const result = await signInAction(formData);
+    const result = await loginAction(formData);
 
     setIsLoading(false);
 

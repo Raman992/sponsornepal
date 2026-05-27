@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Users,
@@ -15,59 +15,72 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardSidebar } from "@/components/layouts/sidebar";
 import { useUIStore } from "@/store/ui-store";
 import { cn } from "@/lib/utils";
 import { toast } from "@/store/ui-store";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: "creator" | "brand" | "admin";
-  isVerified: boolean;
-  isSuspended: boolean;
-  createdAt: string;
-}
+import {
+  getAdminUsersAction,
+  verifyUserAction,
+  suspendUserAction,
+  type AdminUser,
+} from "@/actions/admin.actions";
 
 export default function AdminUsersPage() {
   const { sidebarOpen } = useUIStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [users, setUsers] = useState<User[]>([
-    { id: "1", name: "Rajesh Hamal", email: "rajesh@example.com", role: "creator", isVerified: true, isSuspended: false, createdAt: "2024-01-10" },
-    { id: "2", name: "Sita Sharma", email: "sita@example.com", role: "creator", isVerified: false, isSuspended: false, createdAt: "2024-01-12" },
-    { id: "3", name: "Tech Brand Co", email: "contact@techbrand.com", role: "brand", isVerified: true, isSuspended: false, createdAt: "2024-01-08" },
-    { id: "4", name: "Spam User", email: "spam@example.com", role: "creator", isVerified: false, isSuspended: true, createdAt: "2024-01-15" },
-  ]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
+
+  const fetchUsers = useCallback(async (search?: string) => {
+    setIsFetching(true);
+    const result = await getAdminUsersAction(search);
+    if (result.success && result.data) {
+      setUsers(result.data);
+    }
+    setIsFetching(false);
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchUsers(searchQuery || undefined);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, fetchUsers]);
 
   const handleVerify = async (userId: string) => {
     setIsLoading(true);
-    setTimeout(() => {
+    const result = await verifyUserAction(userId);
+    if (result.success) {
       setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? { ...u, isVerified: true } : u))
+        prev.map((u) => (u.id === userId ? { ...u, is_verified: true } : u))
       );
       toast.success("User verified successfully");
-      setIsLoading(false);
-    }, 500);
+    } else {
+      toast.error(result.error || "Failed to verify user");
+    }
+    setIsLoading(false);
   };
 
-  const handleSuspend = async (userId: string) => {
+  const handleSuspend = async (userId: string, currentlySuspended: boolean) => {
     setIsLoading(true);
-    setTimeout(() => {
+    const result = await suspendUserAction(userId, !currentlySuspended);
+    if (result.success) {
       setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? { ...u, isSuspended: !u.isSuspended } : u))
+        prev.map((u) => (u.id === userId ? { ...u, is_suspended: !currentlySuspended } : u))
       );
-      toast.success("User status updated");
-      setIsLoading(false);
-    }, 500);
+      toast.success(currentlySuspended ? "User unsuspended" : "User suspended");
+    } else {
+      toast.error(result.error || "Failed to update user status");
+    }
+    setIsLoading(false);
   };
-
-  const filteredUsers = users.filter(
-    (u) =>
-      u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -104,7 +117,7 @@ export default function AdminUsersPage() {
           <div className="grid gap-4 md:grid-cols-4 mb-8">
             {[
               { label: "Total Users", value: users.length, icon: Users },
-              { label: "Verified", value: users.filter((u) => u.isVerified).length, icon: CheckCircle2 },
+              { label: "Verified", value: users.filter((u) => u.is_verified).length, icon: CheckCircle2 },
               { label: "Creators", value: users.filter((u) => u.role === "creator").length, icon: Users },
               { label: "Brands", value: users.filter((u) => u.role === "brand").length, icon: Users },
             ].map((stat, index) => (
@@ -135,69 +148,84 @@ export default function AdminUsersPage() {
               <CardDescription>Manage user accounts and verification status</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {filteredUsers.map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div className="flex items-center gap-4">
-                      <Avatar>
-                        <AvatarImage src={undefined} />
-                        <AvatarFallback>
-                          {user.name.split(" ").map((n) => n[0]).join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold">{user.name}</p>
-                          {user.isVerified && (
-                            <Badge className="bg-green-500/10 text-green-600">
-                              <CheckCircle2 className="h-3 w-3 mr-1" />
-                              Verified
-                            </Badge>
-                          )}
-                          {user.isSuspended && (
-                            <Badge variant="destructive">
-                              <Ban className="h-3 w-3 mr-1" />
-                              Suspended
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{user.role} • Joined {new Date(user.createdAt).toLocaleDateString()}</p>
+              {isFetching ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center gap-4 p-4 border rounded-lg">
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                      <div className="flex-1">
+                        <Skeleton className="h-4 w-32 mb-2" />
+                        <Skeleton className="h-3 w-48" />
                       </div>
                     </div>
+                  ))}
+                </div>
+              ) : users.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">No users found</p>
+              ) : (
+                <div className="space-y-4">
+                  {users.map((user) => (
+                    <div
+                      key={user.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
+                      <div className="flex items-center gap-4">
+                        <Avatar>
+                          <AvatarImage src={user.avatar_url || undefined} />
+                          <AvatarFallback>
+                            {user.full_name?.split(" ").map((n) => n[0]).join("") || "?"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold">{user.full_name || "Unknown"}</p>
+                            {user.is_verified && (
+                              <Badge className="bg-green-500/10 text-green-600">
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                Verified
+                              </Badge>
+                            )}
+                            {user.is_suspended && (
+                              <Badge variant="destructive">
+                                <Ban className="h-3 w-3 mr-1" />
+                                Suspended
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground capitalize">{user.role} &middot; Joined {new Date(user.created_at).toLocaleDateString()}</p>
+                        </div>
+                      </div>
 
-                    <div className="flex items-center gap-2">
-                      {!user.isVerified && (
+                      <div className="flex items-center gap-2">
+                        {!user.is_verified && (
+                          <Button
+                            size="sm"
+                            onClick={() => handleVerify(user.id)}
+                            disabled={isLoading}
+                          >
+                            {isLoading ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <>
+                                <Shield className="h-4 w-4 mr-1" />
+                                Verify
+                              </>
+                            )}
+                          </Button>
+                        )}
                         <Button
                           size="sm"
-                          onClick={() => handleVerify(user.id)}
+                          variant={user.is_suspended ? "default" : "outline"}
+                          onClick={() => handleSuspend(user.id, user.is_suspended)}
                           disabled={isLoading}
                         >
-                          {isLoading ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <>
-                              <Shield className="h-4 w-4 mr-1" />
-                              Verify
-                            </>
-                          )}
+                          {user.is_suspended ? "Unsuspend" : "Suspend"}
                         </Button>
-                      )}
-                      <Button
-                        size="sm"
-                        variant={user.isSuspended ? "default" : "outline"}
-                        onClick={() => handleSuspend(user.id)}
-                        disabled={isLoading}
-                      >
-                        {user.isSuspended ? "Unsuspend" : "Suspend"}
-                      </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </main>
