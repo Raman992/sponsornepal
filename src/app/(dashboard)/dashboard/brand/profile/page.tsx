@@ -219,7 +219,7 @@ export default function BrandProfilePage() {
                           />
                         </div>
                         {form.formState.errors.company_name && (
-                          <p className="text-sm text-destructive mt-1">{form.formState.errors.company_name.message}</p>
+                          <p className="text-sm text-destructive mt-1">{String(form.formState.errors.company_name.message)}</p>
                         )}
                       </div>
 
@@ -234,7 +234,7 @@ export default function BrandProfilePage() {
                           />
                         </div>
                         {form.formState.errors.website && (
-                          <p className="text-sm text-destructive mt-1">{form.formState.errors.website.message}</p>
+                          <p className="text-sm text-destructive mt-1">{String(form.formState.errors.website.message)}</p>
                         )}
                       </div>
 
@@ -252,7 +252,7 @@ export default function BrandProfilePage() {
                           ))}
                         </select>
                         {form.formState.errors.industry && (
-                          <p className="text-sm text-destructive mt-1">{form.formState.errors.industry.message}</p>
+                          <p className="text-sm text-destructive mt-1">{String(form.formState.errors.industry.message)}</p>
                         )}
                       </div>
 
@@ -264,7 +264,7 @@ export default function BrandProfilePage() {
                           rows={4}
                         />
                         {form.formState.errors.description && (
-                          <p className="text-sm text-destructive mt-1">{form.formState.errors.description.message}</p>
+                          <p className="text-sm text-destructive mt-1">{String(form.formState.errors.description.message)}</p>
                         )}
                       </div>
                     </form>
