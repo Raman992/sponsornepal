@@ -1,47 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   DollarSign,
   Search,
-  Filter,
   TrendingUp,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardSidebar } from "@/components/layouts/sidebar";
 import { useUIStore } from "@/store/ui-store";
 import { cn } from "@/lib/utils";
-
-interface Transaction {
-  id: string;
-  dealId: string;
-  creatorName: string;
-  brandName: string;
-  amount: number;
-  status: "pending" | "released" | "refunded";
-  createdAt: string;
-}
+import { getAdminTransactionsAction, type AdminTransaction } from "@/actions/admin.actions";
 
 export default function AdminTransactionsPage() {
   const { sidebarOpen } = useUIStore();
   const [searchQuery, setSearchQuery] = useState("");
-  const [transactions] = useState<Transaction[]>([
-    { id: "1", dealId: "1", creatorName: "Rajesh Hamal", brandName: "Tech Brand Co", amount: 35000, status: "released", createdAt: "2024-01-15" },
-    { id: "2", dealId: "2", creatorName: "Sita Sharma", brandName: "Fashion House", amount: 25000, status: "pending", createdAt: "2024-01-16" },
-    { id: "3", dealId: "3", creatorName: "Anita Magar", brandName: "Foodmandu", amount: 45000, status: "released", createdAt: "2024-01-10" },
-  ]);
+  const [transactions, setTransactions] = useState<AdminTransaction[]>([]);
+  const [isFetching, setIsFetching] = useState(true);
 
-  const totalAmount = transactions.reduce((sum, t) => sum + t.amount, 0);
-  const pendingAmount = transactions.filter((t) => t.status === "pending").reduce((sum, t) => sum + t.amount, 0);
-  const releasedAmount = transactions.filter((t) => t.status === "released").reduce((sum, t) => sum + t.amount, 0);
+  const fetchTransactions = useCallback(async () => {
+    setIsFetching(true);
+    const result = await getAdminTransactionsAction();
+    if (result.success && result.data) {
+      setTransactions(result.data);
+    }
+    setIsFetching(false);
+  }, []);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
+
+  const totalAmount = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+  const pendingAmount = transactions
+    .filter((t) => t.payment_status === "pending")
+    .reduce((sum, t) => sum + (t.amount || 0), 0);
+  const releasedAmount = transactions
+    .filter((t) => t.payment_status === "released")
+    .reduce((sum, t) => sum + (t.amount || 0), 0);
 
   const filteredTransactions = transactions.filter(
     (t) =>
-      t.creatorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.brandName.toLowerCase().includes(searchQuery.toLowerCase())
+      (t.creator_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (t.brand_name || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -74,9 +79,6 @@ export default function AdminTransactionsPage() {
                 className="pl-10"
               />
             </div>
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
-            </Button>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3 mb-8">
@@ -112,37 +114,52 @@ export default function AdminTransactionsPage() {
               <CardDescription>All platform transactions</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {filteredTransactions.map((transaction) => (
-                  <div
-                    key={transaction.id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold">NPR {transaction.amount.toLocaleString()}</h3>
-                        <Badge
-                          className={
-                            transaction.status === "released"
-                              ? "bg-green-500/10 text-green-600"
-                              : transaction.status === "pending"
-                              ? "bg-yellow-500/10 text-yellow-600"
-                              : "bg-red-500/10 text-red-600"
-                          }
-                        >
-                          {transaction.status}
-                        </Badge>
+              {isFetching ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center gap-4 p-4 border rounded-lg">
+                      <div className="flex-1">
+                        <Skeleton className="h-4 w-32 mb-2" />
+                        <Skeleton className="h-3 w-48" />
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {transaction.creatorName} ← {transaction.brandName}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(transaction.createdAt).toLocaleDateString()}
-                      </p>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : filteredTransactions.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">No transactions found</p>
+              ) : (
+                <div className="space-y-4">
+                  {filteredTransactions.map((transaction) => (
+                    <div
+                      key={transaction.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold">NPR {(transaction.amount || 0).toLocaleString()}</h3>
+                          <Badge
+                            className={
+                              transaction.payment_status === "released"
+                                ? "bg-green-500/10 text-green-600"
+                                : transaction.payment_status === "pending"
+                                ? "bg-yellow-500/10 text-yellow-600"
+                                : "bg-red-500/10 text-red-600"
+                            }
+                          >
+                            {transaction.payment_status || "unknown"}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {transaction.creator_name || "Unknown"} &larr; {transaction.brand_name || "Unknown"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(transaction.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </main>

@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Briefcase,
   Eye,
   Ban,
-  CheckCircle2,
   Search,
   DollarSign,
   Calendar,
@@ -15,42 +14,58 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardSidebar } from "@/components/layouts/sidebar";
 import { useUIStore } from "@/store/ui-store";
 import { cn } from "@/lib/utils";
 import { toast } from "@/store/ui-store";
-
-interface Campaign {
-  id: string;
-  title: string;
-  brandName: string;
-  status: "draft" | "open" | "in_progress" | "completed" | "cancelled";
-  budget: number;
-  deadline: string;
-  createdAt: string;
-}
+import {
+  getAdminCampaignsAction,
+  cancelCampaignAction,
+  type AdminCampaign,
+} from "@/actions/admin.actions";
+import Link from "next/link";
 
 export default function AdminCampaignsPage() {
   const { sidebarOpen } = useUIStore();
   const [searchQuery, setSearchQuery] = useState("");
-  const [campaigns, setCampaigns] = useState<Campaign[]>([
-    { id: "1", title: "Tech Product Launch", brandName: "Tech Brand Co", status: "open", budget: 100000, deadline: "2024-02-15", createdAt: "2024-01-10" },
-    { id: "2", title: "Fashion Collaboration", brandName: "Fashion House", status: "in_progress", budget: 75000, deadline: "2024-02-01", createdAt: "2024-01-08" },
-    { id: "3", title: "Food Delivery Promo", brandName: "Foodmandu", status: "draft", budget: 50000, deadline: "2024-02-28", createdAt: "2024-01-12" },
-  ]);
+  const [campaigns, setCampaigns] = useState<AdminCampaign[]>([]);
+  const [isFetching, setIsFetching] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleCancel = (campaignId: string) => {
-    setCampaigns((prev) =>
-      prev.map((c) => (c.id === campaignId ? { ...c, status: "cancelled" } : c))
-    );
-    toast.success("Campaign cancelled");
+  const fetchCampaigns = useCallback(async (search?: string) => {
+    setIsFetching(true);
+    const result = await getAdminCampaignsAction(search);
+    if (result.success && result.data) {
+      setCampaigns(result.data);
+    }
+    setIsFetching(false);
+  }, []);
+
+  useEffect(() => {
+    fetchCampaigns();
+  }, [fetchCampaigns]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchCampaigns(searchQuery || undefined);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, fetchCampaigns]);
+
+  const handleCancel = async (campaignId: string) => {
+    setIsLoading(true);
+    const result = await cancelCampaignAction(campaignId);
+    if (result.success) {
+      setCampaigns((prev) =>
+        prev.map((c) => (c.id === campaignId ? { ...c, status: "cancelled" } : c))
+      );
+      toast.success("Campaign cancelled");
+    } else {
+      toast.error(result.error || "Failed to cancel campaign");
+    }
+    setIsLoading(false);
   };
-
-  const filteredCampaigns = campaigns.filter(
-    (c) =>
-      c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.brandName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const statusColors: Record<string, string> = {
     draft: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
@@ -121,52 +136,74 @@ export default function AdminCampaignsPage() {
               <CardDescription>Monitor and moderate brand campaigns</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {filteredCampaigns.map((campaign) => (
-                  <div
-                    key={campaign.id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold">{campaign.title}</h3>
-                        <Badge className={statusColors[campaign.status]}>
-                          {campaign.status.replace("_", " ")}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">by {campaign.brandName}</p>
-                      <div className="flex gap-4 text-sm text-muted-foreground mt-2">
-                        <span className="flex items-center gap-1">
-                          <DollarSign className="h-4 w-4" />
-                          NPR {campaign.budget.toLocaleString()}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          {new Date(campaign.deadline).toLocaleDateString()}
-                        </span>
+              {isFetching ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center gap-4 p-4 border rounded-lg">
+                      <div className="flex-1">
+                        <Skeleton className="h-4 w-48 mb-2" />
+                        <Skeleton className="h-3 w-32" />
                       </div>
                     </div>
+                  ))}
+                </div>
+              ) : campaigns.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">No campaigns found</p>
+              ) : (
+                <div className="space-y-4">
+                  {campaigns.map((campaign) => (
+                    <div
+                      key={campaign.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold">{campaign.title}</h3>
+                          <Badge className={statusColors[campaign.status]}>
+                            {campaign.status.replace("_", " ")}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">by {campaign.brand_name || "Unknown Brand"}</p>
+                        <div className="flex gap-4 text-sm text-muted-foreground mt-2">
+                          {campaign.budget && (
+                            <span className="flex items-center gap-1">
+                              <DollarSign className="h-4 w-4" />
+                              NPR {campaign.budget.toLocaleString()}
+                            </span>
+                          )}
+                          {campaign.deadline && (
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />
+                              {new Date(campaign.deadline).toLocaleDateString()}
+                            </span>
+                          )}
+                        </div>
+                      </div>
 
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" variant="outline">
-                        <Eye className="h-4 w-4 mr-1" />
-                        View
-                      </Button>
-                      {campaign.status !== "cancelled" && campaign.status !== "completed" && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-red-600 border-red-200 hover:bg-red-50"
-                          onClick={() => handleCancel(campaign.id)}
-                        >
-                          <Ban className="h-4 w-4 mr-1" />
-                          Cancel
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline" asChild>
+                          <Link href={`/campaigns/${campaign.id}`}>
+                            <Eye className="h-4 w-4 mr-1" />
+                            View
+                          </Link>
                         </Button>
-                      )}
+                        {campaign.status !== "cancelled" && campaign.status !== "completed" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 border-red-200 hover:bg-red-50"
+                            onClick={() => handleCancel(campaign.id)}
+                            disabled={isLoading}
+                          >
+                            <Ban className="h-4 w-4 mr-1" />
+                            Cancel
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </main>
