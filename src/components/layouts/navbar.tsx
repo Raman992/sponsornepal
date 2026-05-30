@@ -8,7 +8,7 @@ import { Menu, X, Search, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
-import { useAuthStore } from "@/store/use-auth-store";
+import { useAuthStore } from "@/store/auth-store";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -30,7 +30,7 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
-  const { isAuthenticated, user } = useAuthStore();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,13 +52,16 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <Image
-              src="/sponsornepal_nav_logo.png"
-              alt="SponsorNepal"
-              width={100}
-              height={100}
-              className="h-10 w-auto rounded-lg"
-            />
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 rounded-xl blur-md group-hover:bg-primary/30 transition-all duration-300" />
+              <Image
+                src="/sponsornepal_nav_logo.png"
+                alt="SponsorNepal"
+                width={100}
+                height={100}
+                className="relative h-10 w-auto rounded-xl shadow-md shadow-black/10 ring-1 ring-black/5 group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-300"
+              />
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
@@ -67,17 +70,17 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative px-4 py-2 text-sm font-medium transition-colors rounded-lg ${
+                className={`relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg ${
                   pathname === link.href
                     ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted hover:shadow-sm hover:shadow-black/5"
                 }`}
               >
                 {link.label}
                 {pathname === link.href && (
                   <motion.div
                     layoutId="navbar-indicator"
-                    className="absolute inset-0 bg-primary/10 rounded-lg -z-10"
+                    className="absolute inset-0 bg-primary/10 rounded-lg shadow-sm shadow-primary/10 -z-10"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
@@ -87,18 +90,20 @@ export function Navbar() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="rounded-lg" asChild>
+            <Button variant="ghost" size="icon" className="rounded-lg shadow-sm shadow-black/10 hover:shadow-md hover:shadow-black/20 hover:bg-accent transition-all duration-200" asChild>
               <Link href="/search">
                 <Search className="h-5 w-5" />
               </Link>
             </Button>
-            <ThemeToggle />
+            <div className="shadow-sm shadow-black/10 hover:shadow-md hover:shadow-black/20 rounded-lg transition-all duration-200">
+              <ThemeToggle />
+            </div>
 
-            {isAuthenticated && user ? (
+                  {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 ml-2">
-                    <Avatar className="h-10 w-10 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 ml-2 hover:bg-transparent">
+                    <Avatar className="h-10 w-10 ring-2 ring-primary/40 ring-offset-2 ring-offset-background shadow-md shadow-primary/15 hover:shadow-lg hover:shadow-primary/30 hover:ring-primary/60 transition-all duration-300">
                       <AvatarImage src={user.avatar_url || ""} alt={user.full_name || ""} />
                       <AvatarFallback className="bg-gradient-to-br from-primary to-neutral-600 text-white font-medium">
                         {getInitials(user.full_name || "U")}
@@ -131,10 +136,10 @@ export function Navbar() {
               </DropdownMenu>
             ) : (
               <div className="flex items-center gap-2 ml-2">
-                <Button variant="ghost" className="rounded-lg" asChild>
+                <Button variant="outline" className="rounded-lg border-border shadow-sm shadow-black/10 hover:shadow-md hover:shadow-black/20 hover:border-primary/40 hover:bg-primary/10 hover:text-primary transition-all duration-200" asChild>
                   <Link href="/login">Log in</Link>
                 </Button>
-                <Button className="rounded-lg gap-2" asChild>
+                <Button className="rounded-lg gap-2 shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/40 hover:brightness-110 transition-all duration-200" asChild>
                   <Link href="/signup">
                     Get Started
                   </Link>
@@ -145,7 +150,7 @@ export function Navbar() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
+            className="md:hidden p-2 rounded-lg shadow-sm shadow-black/10 hover:shadow-md hover:shadow-black/20 hover:bg-accent transition-all duration-200"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
           >
@@ -195,10 +200,10 @@ export function Navbar() {
                   >
                     <Link
                       href={link.href}
-                      className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                      className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
                         pathname === link.href
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                          ? "bg-primary/10 text-primary shadow-sm shadow-primary/10"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground hover:shadow-sm hover:shadow-black/5"
                       }`}
                     >
                       {link.label}
@@ -217,30 +222,30 @@ export function Navbar() {
                     <ThemeToggle />
                   </div>
                   
-                  {isAuthenticated && user ? (
+                  {user ? (
                     <>
                       <Link
                         href={`/dashboard/${user.role}`}
-                        className="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-muted transition-colors"
+                        className="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-muted hover:shadow-sm hover:shadow-black/5 transition-all duration-200"
                       >
                         Dashboard
                       </Link>
                       <Link
                         href={`/dashboard/${user.role}/profile`}
-                        className="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-muted transition-colors"
+                        className="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-muted hover:shadow-sm hover:shadow-black/5 transition-all duration-200"
                       >
                         Profile
                       </Link>
-                      <button className="w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-destructive hover:bg-destructive/10 transition-colors">
+                      <button className="w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg text-destructive hover:bg-destructive/10 hover:shadow-sm hover:shadow-destructive/10 transition-all duration-200">
                         Log out
                       </button>
                     </>
                   ) : (
                     <div className="flex flex-col gap-2 px-4">
-                      <Button variant="outline" className="w-full justify-center" asChild>
+                      <Button variant="outline" className="w-full justify-center shadow-sm shadow-black/10 hover:shadow-md hover:shadow-black/20 border-border hover:border-primary/40 hover:bg-primary/10 hover:text-primary transition-all duration-200" asChild>
                         <Link href="/login">Log in</Link>
                       </Button>
-                      <Button className="w-full justify-center" asChild>
+                      <Button className="w-full justify-center shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/40 hover:brightness-110 transition-all duration-200" asChild>
                         <Link href="/signup">Get Started</Link>
                       </Button>
                     </div>
