@@ -1,10 +1,12 @@
 import {
   getDeals,
-  getDealById,
+  getDeal,
   createDeal,
-  updateDeal,
-  getDealStats,
-  getActiveDealsCount,
+  updateDealStatus,
+  updateDealPayment,
+  getActiveDeals,
+  getPendingDeals,
+  getActiveDealCount,
 } from "@/repositories/deal.repository";
 import { sendEmail } from "@/lib/email/send";
 import { dealUpdateTemplate } from "@/lib/email/templates";
@@ -12,38 +14,34 @@ import { createClient } from "@/lib/supabase/server";
 import type { Deal } from "@/types";
 
 export class DealService {
-  async getDeals(params?: {
-    creatorId?: string;
-    brandId?: string;
-    status?: string;
-    page?: number;
-    limit?: number;
-  }) {
-    return getDeals(params);
+  async getDeals(userId: string) {
+    if (!userId) {
+      return [];
+    }
+    return getDeals(userId);
   }
 
-  async getDealById(id: string) {
-    return getDealById(id);
+  async getDealById(dealId: string, userId: string) {
+    if (!dealId || !userId) {
+      return null;
+    }
+    return getDeal(dealId, userId);
   }
 
   async createDeal(
-    data: {
-      campaign_id: string;
-      creator_id: string;
-      brand_id: string;
-      agreed_amount?: number;
-      status?: string;
-    }
+    campaignId: string,
+    creatorId: string,
+    brandId: string,
+    agreedAmount: number
   ) {
-    if (!data.campaign_id || !data.creator_id || !data.brand_id) {
+    if (!campaignId || !creatorId || !brandId) {
       return { success: false, error: "Campaign, creator, and brand IDs are required" };
     }
 
-    const result = await createDeal(data);
+    const result = await createDeal(campaignId, creatorId, brandId, agreedAmount);
 
-    // Send email notification (non-blocking)
     if (result.success) {
-      this.sendDealEmails(data.campaign_id, data.creator_id, data.brand_id, "active").catch((err) =>
+      this.sendDealEmails(campaignId, creatorId, brandId, "active").catch((err) =>
         console.warn("Deal creation email failed:", err)
       );
     }
@@ -51,26 +49,39 @@ export class DealService {
     return result;
   }
 
-  async updateDeal(dealId: string, userId: string, updates: Partial<Deal>) {
+  async updateDealStatus(dealId: string, userId: string, status: "pending" | "active" | "completed" | "cancelled") {
     if (!dealId || !userId) {
       return { success: false, error: "Deal ID and User ID are required" };
     }
 
-    const result = await updateDeal(dealId, userId, updates);
+    return updateDealStatus(dealId, userId, status);
+  }
 
-    // Send email notification on status change (non-blocking)
-    if (result.success && updates.status) {
-      this.sendDealUpdateEmail(dealId, updates.status as string).catch((err) =>
-        console.warn("Deal update email failed:", err)
-      );
+  async updateDealPayment(dealId: string, userId: string, escrowStatus: string, payoutStatus?: string) {
+    if (!dealId || !userId) {
+      return { success: false, error: "Deal ID and User ID are required" };
     }
 
-    return result;
+    return updateDealPayment(dealId, userId, escrowStatus, payoutStatus);
+  }
+
+  async getActiveDeals(userId: string) {
+    if (!userId) {
+      return [];
+    }
+    return getActiveDeals(userId);
+  }
+
+  async getPendingDeals(userId: string) {
+    if (!userId) {
+      return [];
+    }
+    return getPendingDeals(userId);
   }
 
   private async sendDealEmails(campaignId: string, creatorId: string, brandId: string, status: string) {
     try {
-      const supabase = createClient();
+      const supabase = await createClient();
       const { data: campaign } = await supabase
         .from("campaigns")
         .select("title")
@@ -100,22 +111,22 @@ export class DealService {
 
   private async sendDealUpdateEmail(dealId: string, status: string) {
     try {
-      const supabase = createClient();
+      const supabase = await createClient();
       const { data: deal } = await supabase
         .from("deals")
         .select(`
           campaign:campaigns(title),
-          creator:users!creator_id(full_name, email),
-          brand:users!brand_id(full_name, email)
+          creator:users!deals_creator_id_fkey(full_name, email),
+          brand:users!deals_brand_id_fkey(full_name, email)
         `)
         .eq("id", dealId)
         .single();
 
       if (!deal) return;
 
-      const campaign = deal.campaign as { title: string };
-      const creator = deal.creator as { full_name: string; email: string };
-      const brand = deal.brand as { full_name: string; email: string };
+      const campaign = deal.campaign as unknown as { title: string };
+      const creator = deal.creator as unknown as { full_name: string; email: string };
+      const brand = deal.brand as unknown as { full_name: string; email: string };
 
       for (const user of [creator, brand]) {
         await sendEmail({
@@ -134,7 +145,16 @@ export class DealService {
       return { total: 0, active: 0, completed: 0, pending: 0 };
     }
 
-    return getDealStats(userId, role);
+    const deals = await getDeals(userId);
+    const field = role === "brand" ? "brand_id" : "creator_id";
+    const userDeals = deals.filter((d) => (d as any)[field] === userId);
+
+    return {
+      total: userDeals.length,
+      active: userDeals.filter((d) => d.status === "active").length,
+      completed: userDeals.filter((d) => d.status === "completed").length,
+      pending: userDeals.filter((d) => d.status === "pending").length,
+    };
   }
 
   async getActiveDealsCount(userId: string, role: "creator" | "brand") {
@@ -142,7 +162,7 @@ export class DealService {
       return 0;
     }
 
-    return getActiveDealsCount(userId, role);
+    return getActiveDealCount(userId);
   }
 }
 

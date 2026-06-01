@@ -1,21 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  LayoutDashboard,
   User,
   FileText,
   MessageSquare,
   Handshake,
   TrendingUp,
-  Users,
-  DollarSign,
   Eye,
   ArrowRight,
   Sparkles,
   Briefcase,
+  DollarSign,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,50 +22,40 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardSidebar } from "@/components/layouts/sidebar";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
+import { useCreatorApplications, useApplicationStats } from "@/hooks/use-applications";
+import { useActiveDeals } from "@/hooks/use-deals";
+import { useUnreadMessageCount } from "@/hooks/use-messaging";
+import { useOpenCampaigns } from "@/hooks/use-campaigns";
 import { cn } from "@/lib/utils";
+import type { CampaignApplication } from "@/types";
 
 export default function CreatorDashboardPage() {
   const { user } = useAuthStore();
   const { sidebarOpen } = useUIStore();
-  const [isLoading, setIsLoading] = useState(true);
-  const [stats, setStats] = useState({
-    activeApplications: 0,
-    activeDeals: 0,
-    unreadMessages: 0,
+
+  const { data: applicationStats, isLoading: statsLoading } = useApplicationStats(user?.id || "");
+  const { data: activeDeals = [], isLoading: dealsLoading } = useActiveDeals();
+  const { data: unreadCount = 0, isLoading: unreadLoading } = useUnreadMessageCount();
+  const { data: applications = [], isLoading: appsLoading } = useCreatorApplications(user?.id || "");
+  const { data: campaigns = [], isLoading: campaignsLoading } = useOpenCampaigns(6);
+
+  const isLoading = statsLoading || dealsLoading || unreadLoading || appsLoading || campaignsLoading;
+
+  const stats = {
+    activeApplications: applicationStats?.pending || 0,
+    activeDeals: activeDeals.length,
+    unreadMessages: unreadCount,
     profileViews: 0,
-  });
-  const [recentApplications, setRecentApplications] = useState<{id: number; campaignTitle: string; brand: string; status: string; createdAt: string}[]>([]);
-  const [activeCampaigns, setActiveCampaigns] = useState<{id: number; title: string; budget: number; deadline: string; status: string}[]>([]);
+  };
 
-  useEffect(() => {
-    const loadDashboardData = async () => {
-      try {
-        setTimeout(() => {
-          setStats({
-            activeApplications: 5,
-            activeDeals: 2,
-            unreadMessages: 3,
-            profileViews: 145,
-          });
-          setRecentApplications([
-            { id: 1, campaignTitle: "Tech Product Launch", brand: "Ncell", status: "pending", createdAt: "2024-01-15" },
-            { id: 2, campaignTitle: "Fashion Brand Collaboration", brand: "Daraz", status: "accepted", createdAt: "2024-01-14" },
-            { id: 3, campaignTitle: "Food Review Campaign", brand: "Foodmandu", status: "pending", createdAt: "2024-01-13" },
-          ]);
-          setActiveCampaigns([
-            { id: 1, title: "Gaming Hardware Review", budget: 50000, deadline: "2024-02-01", status: "in_progress" },
-            { id: 2, title: "Fitness App Promotion", budget: 30000, deadline: "2024-02-15", status: "open" },
-          ]);
-          setIsLoading(false);
-        }, 500);
-      } catch (error) {
-        console.error("Error loading dashboard data:", error);
-        setIsLoading(false);
-      }
-    };
+  const recentApplications = (applications || []).slice(0, 3).map((app: CampaignApplication & { campaign?: { title: string } }) => ({
+    id: app.id,
+    campaignTitle: app.campaign?.title || "Campaign",
+    status: app.status,
+    createdAt: app.created_at,
+  }));
 
-    loadDashboardData();
-  }, []);
+  const featuredCampaigns = (campaigns || []).slice(0, 2);
 
   const initials = user?.full_name
     ?.split(" ")
@@ -97,13 +84,15 @@ export default function CreatorDashboardPage() {
             </div>
             
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon">
-                <span className="relative">
-                  <MessageSquare className="h-5 w-5" />
-                  {stats.unreadMessages > 0 && (
-                    <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-primary" />
-                  )}
-                </span>
+              <Button variant="ghost" size="icon" asChild>
+                <Link href="/dashboard/creator/messages">
+                  <span className="relative">
+                    <MessageSquare className="h-5 w-5" />
+                    {stats.unreadMessages > 0 && (
+                      <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-primary" />
+                    )}
+                  </span>
+                </Link>
               </Button>
               
               <Link href="/dashboard/creator/profile">
@@ -135,8 +124,8 @@ export default function CreatorDashboardPage() {
                     <Badge variant="secondary" className="bg-neutral-500/10 text-neutral-600">Active</Badge>
                   </div>
                   <div className="mt-4">
-                    <div className="text-3xl font-bold">{stats.activeApplications}</div>
-                    <p className="text-sm text-muted-foreground">Active Applications</p>
+                    <div className="text-3xl font-bold">{statsLoading ? <Skeleton className="h-8 w-12" /> : stats.activeApplications}</div>
+                    <p className="text-sm text-muted-foreground">Pending Applications</p>
                   </div>
                 </CardContent>
               </Card>
@@ -156,7 +145,7 @@ export default function CreatorDashboardPage() {
                     <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600">Active</Badge>
                   </div>
                   <div className="mt-4">
-                    <div className="text-3xl font-bold">{stats.activeDeals}</div>
+                    <div className="text-3xl font-bold">{dealsLoading ? <Skeleton className="h-8 w-12" /> : stats.activeDeals}</div>
                     <p className="text-sm text-muted-foreground">Active Deals</p>
                   </div>
                 </CardContent>
@@ -179,7 +168,7 @@ export default function CreatorDashboardPage() {
                     </Badge>
                   </div>
                   <div className="mt-4">
-                    <div className="text-3xl font-bold">{stats.unreadMessages}</div>
+                    <div className="text-3xl font-bold">{unreadLoading ? <Skeleton className="h-8 w-12" /> : stats.unreadMessages}</div>
                     <p className="text-sm text-muted-foreground">Unread Messages</p>
                   </div>
                 </CardContent>
@@ -197,9 +186,6 @@ export default function CreatorDashboardPage() {
                     <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center">
                       <Eye className="h-6 w-6 text-amber-600" />
                     </div>
-                    <Badge variant="secondary" className="bg-amber-500/10 text-amber-600">
-                      +12%
-                    </Badge>
                   </div>
                   <div className="mt-4">
                     <div className="text-3xl font-bold">{stats.profileViews}</div>
@@ -217,7 +203,7 @@ export default function CreatorDashboardPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <Link href="/dashboard/creator/campaigns">
+              <Link href="/campaigns">
                 <Card variant="elevated" className="h-full group hover-lift cursor-pointer">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4">
@@ -271,8 +257,8 @@ export default function CreatorDashboardPage() {
                         <TrendingUp className="h-7 w-7 text-white" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold mb-1">Track Progress</h3>
-                        <p className="text-sm text-muted-foreground">View analytics</p>
+                        <h3 className="font-semibold mb-1">Messages</h3>
+                        <p className="text-sm text-muted-foreground">Chat with brands</p>
                       </div>
                       <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
                     </div>
@@ -301,7 +287,7 @@ export default function CreatorDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {isLoading ? (
+                    {appsLoading ? (
                       <>
                         {[1, 2, 3].map((i) => (
                           <div key={i} className="flex items-center gap-4">
@@ -324,7 +310,6 @@ export default function CreatorDashboardPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="font-medium truncate">{app.campaignTitle}</p>
-                            <p className="text-sm text-muted-foreground">{app.brand}</p>
                           </div>
                           <Badge
                             variant={
@@ -353,7 +338,7 @@ export default function CreatorDashboardPage() {
               </Card>
             </motion.div>
 
-            {/* Active Campaigns */}
+            {/* Featured Campaigns */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -363,14 +348,14 @@ export default function CreatorDashboardPage() {
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="text-lg font-semibold">Featured Campaigns</CardTitle>
                   <Button variant="ghost" size="sm" asChild>
-                    <Link href="/dashboard/creator/campaigns">
+                    <Link href="/campaigns">
                       Browse All <ArrowRight className="ml-1 h-4 w-4" />
                     </Link>
                   </Button>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {isLoading ? (
+                    {campaignsLoading ? (
                       <>
                         {[1, 2].map((i) => (
                           <div key={i} className="space-y-2">
@@ -379,8 +364,8 @@ export default function CreatorDashboardPage() {
                           </div>
                         ))}
                       </>
-                    ) : activeCampaigns.length > 0 ? (
-                      activeCampaigns.map((campaign) => (
+                    ) : featuredCampaigns.length > 0 ? (
+                      featuredCampaigns.map((campaign) => (
                         <div
                           key={campaign.id}
                           className="p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
@@ -395,11 +380,15 @@ export default function CreatorDashboardPage() {
                             </Badge>
                           </div>
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <DollarSign className="h-4 w-4" />
-                              NPR {campaign.budget.toLocaleString()}
-                            </span>
-                            <span>Deadline: {new Date(campaign.deadline).toLocaleDateString()}</span>
+                            {campaign.budget && (
+                              <span className="flex items-center gap-1">
+                                <DollarSign className="h-4 w-4" />
+                                NPR {campaign.budget.toLocaleString()}
+                              </span>
+                            )}
+                            {campaign.deadline && (
+                              <span>Deadline: {new Date(campaign.deadline).toLocaleDateString()}</span>
+                            )}
                           </div>
                           <Button size="sm" className="mt-3 w-full" variant="outline" asChild>
                             <Link href={`/campaigns/${campaign.id}`}>View Details</Link>
@@ -409,7 +398,7 @@ export default function CreatorDashboardPage() {
                     ) : (
                       <div className="text-center py-8">
                         <Sparkles className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-                        <p className="text-muted-foreground">No active campaigns</p>
+                        <p className="text-muted-foreground">No campaigns available</p>
                       </div>
                     )}
                   </div>
