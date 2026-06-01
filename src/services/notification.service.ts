@@ -1,9 +1,9 @@
 import {
   getNotifications,
-  getUnreadCount,
+  getUnreadNotificationCount,
   createNotification,
-  markAsRead,
-  markAllAsRead,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
   deleteNotification,
   createBulkNotifications,
 } from "@/repositories/notification.repository";
@@ -21,19 +21,15 @@ export class NotificationService {
     if (!userId) {
       return 0;
     }
-    return getUnreadCount(userId);
+    return getUnreadNotificationCount(userId);
   }
 
-  async createNotification(data: {
-    user_id: string;
-    title: string;
-    message: string;
-  }) {
-    if (!data.user_id || !data.title || !data.message) {
+  async createNotification(userId: string, title: string, message: string) {
+    if (!userId || !title || !message) {
       return { success: false, error: "All fields are required" };
     }
 
-    return createNotification(data);
+    return createNotification(userId, title, message);
   }
 
   async markAsRead(notificationId: string, userId: string) {
@@ -41,7 +37,7 @@ export class NotificationService {
       return { success: false, error: "Notification ID and User ID are required" };
     }
 
-    return markAsRead(notificationId, userId);
+    return markNotificationAsRead(notificationId, userId);
   }
 
   async markAllAsRead(userId: string) {
@@ -49,7 +45,7 @@ export class NotificationService {
       return { success: false, error: "User ID is required" };
     }
 
-    return markAllAsRead(userId);
+    return markAllNotificationsAsRead(userId);
   }
 
   async deleteNotification(notificationId: string, userId: string) {
@@ -62,7 +58,7 @@ export class NotificationService {
 
   async createBulkNotifications(
     notifications: Array<{
-      user_id: string;
+      userId: string;
       title: string;
       message: string;
     }>
