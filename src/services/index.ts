@@ -6,3 +6,4 @@ export { dealService } from "./deal.service";
 export { applicationService } from "./application.service";
 export { notificationService } from "./notification.service";
 export { brandService } from "./brand.service";
+export { paymentService } from "./payment.service";
