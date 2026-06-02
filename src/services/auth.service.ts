@@ -9,11 +9,14 @@ export interface AuthError {
 }
 
 export class AuthService {
-  private supabase = createClient();
+  private async getClient() {
+    return createClient();
+  }
 
   async signInWithEmail(email: string, password: string): Promise<{ user: User | null; error: AuthError | null }> {
     try {
-      const { data, error } = await this.supabase.auth.signInWithPassword({
+      const supabase = await this.getClient();
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -41,7 +44,8 @@ export class AuthService {
     role: 'creator' | 'brand'
   ): Promise<{ user: User | null; error: AuthError | null }> {
     try {
-      const { data, error } = await this.supabase.auth.signUp({
+      const supabase = await this.getClient();
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -82,7 +86,8 @@ export class AuthService {
         ? `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?role=${role || 'creator'}`
         : `http://localhost:3000/auth/callback?role=${role || 'creator'}`;
 
-      const { error } = await this.supabase.auth.signInWithOAuth({
+      const supabase = await this.getClient();
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           queryParams: {
@@ -105,7 +110,8 @@ export class AuthService {
 
   async signOut(): Promise<{ error: AuthError | null }> {
     try {
-      const { error } = await this.supabase.auth.signOut();
+      const supabase = await this.getClient();
+      const { error } = await supabase.auth.signOut();
       return { error };
     } catch (error) {
       console.error('Sign out error:', error);
@@ -119,7 +125,8 @@ export class AuthService {
         ? `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password`
         : 'http://localhost:3000/auth/reset-password';
 
-      const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+      const supabase = await this.getClient();
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,
       });
 
@@ -136,7 +143,8 @@ export class AuthService {
 
   async updatePassword(newPassword: string): Promise<{ error: AuthError | null }> {
     try {
-      const { error } = await this.supabase.auth.updateUser({
+      const supabase = await this.getClient();
+      const { error } = await supabase.auth.updateUser({
         password: newPassword,
       });
 
@@ -153,7 +161,8 @@ export class AuthService {
 
   async getCurrentUser(): Promise<User | null> {
     try {
-      const { data: { user } } = await this.supabase.auth.getUser();
+      const supabase = await this.getClient();
+      const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
         return null;
@@ -168,7 +177,8 @@ export class AuthService {
 
   async getUserData(userId: string): Promise<User | null> {
     try {
-      const { data, error } = await this.supabase
+      const supabase = await this.getClient();
+      const { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('id', userId)
@@ -199,13 +209,14 @@ export class AuthService {
     avatar_url?: string;
   }): Promise<{ user: User | null; error: AuthError | null }> {
     try {
-      const { data: { user } } = await this.supabase.auth.getUser();
+      const supabase = await this.getClient();
+      const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
         return { user: null, error: { message: 'Not authenticated' } };
       }
 
-      const { data, error } = await this.supabase
+      const { data, error } = await supabase
         .from('users')
         .update(updates)
         .eq('id', user.id)

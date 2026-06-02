@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { BrandProfile } from "@/types";
 
 export async function getBrandProfile(userId: string): Promise<BrandProfile | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data, error } = await supabase
     .from("brand_profiles")
@@ -25,7 +25,7 @@ export async function updateBrandProfile(
   userId: string,
   updates: Partial<BrandProfile>
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { error } = await supabase
     .from("brand_profiles")
@@ -44,7 +44,7 @@ export async function createBrandProfile(
   userId: string,
   data: { company_name: string; website?: string; industry?: string; description?: string }
 ): Promise<{ success: boolean; error?: string; profile?: BrandProfile }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data: profile, error } = await supabase
     .from("brand_profiles")
