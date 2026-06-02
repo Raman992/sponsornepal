@@ -1,34 +1,29 @@
 import {
-  getApplication,
-  getApplicationsByCampaign,
-  getApplicationsByCreator,
-  createApplication,
+  getApplicationsForCampaign,
+  getCreatorApplications,
+  applyToCampaign,
   updateApplicationStatus,
-  hasCreatorApplied,
+  hasAlreadyApplied,
   getApplicationStats,
 } from "@/repositories/application.repository";
 import { sendEmail } from "@/lib/email/send";
 import { applicationUpdateTemplate } from "@/lib/email/templates";
 import { createClient } from "@/lib/supabase/server";
-import type { Application } from "@/types";
+import type { CampaignApplication } from "@/types";
 
 export class ApplicationService {
-  async getApplication(id: string) {
-    return getApplication(id);
-  }
-
   async getApplicationsByCampaign(campaignId: string, brandId: string) {
     if (!campaignId || !brandId) {
       return [];
     }
-    return getApplicationsByCampaign(campaignId, brandId);
+    return getApplicationsForCampaign(campaignId);
   }
 
   async getApplicationsByCreator(creatorId: string) {
     if (!creatorId) {
       return [];
     }
-    return getApplicationsByCreator(creatorId);
+    return getCreatorApplications(creatorId);
   }
 
   async createApplication(
@@ -44,12 +39,16 @@ export class ApplicationService {
       return { success: false, error: "Creator ID and Campaign ID are required" };
     }
 
-    const alreadyApplied = await hasCreatorApplied(creatorId, data.campaign_id);
+    const alreadyApplied = await hasAlreadyApplied(data.campaign_id, creatorId);
     if (alreadyApplied) {
       return { success: false, error: "You have already applied to this campaign" };
     }
 
-    return createApplication(creatorId, data);
+    return applyToCampaign(data.campaign_id, creatorId, {
+      proposal_message: data.proposal_message || "",
+      expected_price: data.expected_price || 0,
+      delivery_timeline: data.delivery_timeline || "",
+    });
   }
 
   async updateApplicationStatus(
@@ -61,9 +60,8 @@ export class ApplicationService {
       return { success: false, error: "All fields are required" };
     }
 
-    const result = await updateApplicationStatus(applicationId, brandId, status);
+    const result = await updateApplicationStatus(applicationId, status);
 
-    // Send email notification (non-blocking)
     if (result.success) {
       this.sendStatusEmail(applicationId, status).catch((err) =>
         console.warn("Application status email failed:", err)
@@ -75,19 +73,19 @@ export class ApplicationService {
 
   private async sendStatusEmail(applicationId: string, status: string) {
     try {
-      const supabase = createClient();
+      const supabase = await createClient();
       const { data: app } = await supabase
         .from("campaign_applications")
         .select(`
           campaign:campaigns(title),
-          creator:users!creator_id(full_name, email)
+          creator:users!campaign_applications_creator_id_fkey(full_name, email)
         `)
         .eq("id", applicationId)
         .single();
 
       if (app?.creator && app?.campaign) {
-        const creator = app.creator as { full_name: string; email: string };
-        const campaign = app.campaign as { title: string };
+        const creator = app.creator as unknown as { full_name: string; email: string };
+        const campaign = app.campaign as unknown as { title: string };
         await sendEmail({
           to: creator.email,
           subject: `Application ${status} - ${campaign.title}`,
@@ -100,11 +98,11 @@ export class ApplicationService {
   }
 
   async hasCreatorApplied(creatorId: string, campaignId: string) {
-    return hasCreatorApplied(creatorId, campaignId);
+    return hasAlreadyApplied(campaignId, creatorId);
   }
 
-  async getApplicationStats(brandId: string) {
-    return getApplicationStats(brandId);
+  async getApplicationStats(creatorId: string) {
+    return getApplicationStats(creatorId);
   }
 }
 

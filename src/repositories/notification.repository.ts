@@ -5,7 +5,7 @@ export async function getNotifications(
   userId: string,
   limit: number = 20
 ): Promise<Notification[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("notifications")
@@ -23,7 +23,7 @@ export async function getNotifications(
 }
 
 export async function getUnreadNotificationCount(userId: string): Promise<number> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { count, error } = await supabase
     .from("notifications")
@@ -44,7 +44,7 @@ export async function createNotification(
   title: string,
   message: string
 ): Promise<{ success: boolean; notification?: Notification; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("notifications")
@@ -69,7 +69,7 @@ export async function markNotificationAsRead(
   notificationId: string,
   userId: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("notifications")
@@ -88,7 +88,7 @@ export async function markNotificationAsRead(
 export async function markAllNotificationsAsRead(
   userId: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("notifications")
@@ -108,7 +108,7 @@ export async function deleteNotification(
   notificationId: string,
   userId: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("notifications")
@@ -127,7 +127,7 @@ export async function deleteNotification(
 export async function createBulkNotifications(
   notifications: { userId: string; title: string; message: string }[]
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const insertData = notifications.map((n) => ({
     user_id: n.userId,

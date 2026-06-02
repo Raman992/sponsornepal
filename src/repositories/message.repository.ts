@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Conversation, Message, User } from "@/types";
 
 export async function getConversations(userId: string): Promise<Conversation[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("conversations")
@@ -26,7 +26,7 @@ export async function getConversation(
   conversationId: string,
   userId: string
 ): Promise<Conversation | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("conversations")
@@ -51,7 +51,7 @@ export async function getOrCreateConversation(
   userId: string,
   otherUserId: string
 ): Promise<{ success: boolean; conversation?: Conversation; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: existing } = await supabase
     .from("conversations")
@@ -106,7 +106,7 @@ export async function getMessages(
   limit: number = 50,
   offset: number = 0
 ): Promise<Message[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("messages")
@@ -131,7 +131,7 @@ export async function sendMessage(
   senderId: string,
   content: string
 ): Promise<{ success: boolean; message?: Message; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: message, error } = await supabase
     .from("messages")
@@ -159,7 +159,7 @@ export async function markMessagesAsRead(
   conversationId: string,
   userId: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("messages")
@@ -176,7 +176,7 @@ export async function markMessagesAsRead(
 }
 
 export async function getUnreadCount(userId: string): Promise<number> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: conversations } = await supabase
     .from("conversations")
@@ -206,7 +206,7 @@ export async function getConversationByUsers(
   userId: string,
   otherUserId: string
 ): Promise<Conversation | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("conversations")
@@ -224,7 +224,7 @@ export async function getConversationByUsers(
 export async function getLatestMessage(
   conversationId: string
 ): Promise<Message | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("messages")
