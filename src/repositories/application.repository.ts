@@ -4,7 +4,7 @@ import type { CampaignApplication, CreatorProfile, User } from "@/types";
 export async function getApplicationsForCampaign(
   campaignId: string
 ): Promise<(CampaignApplication & { creator?: User; creator_profile?: CreatorProfile })[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data, error } = await supabase
     .from("campaign_applications")
@@ -27,7 +27,7 @@ export async function getApplicationsForCampaign(
 export async function getCreatorApplications(
   creatorId: string
 ): Promise<CampaignApplication[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data, error } = await supabase
     .from("campaign_applications")
@@ -55,7 +55,7 @@ export async function applyToCampaign(
     delivery_timeline: string;
   }
 ): Promise<{ success: boolean; error?: string; application?: CampaignApplication }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data: application, error } = await supabase
     .from("campaign_applications")
@@ -80,7 +80,7 @@ export async function updateApplicationStatus(
   applicationId: string,
   status: "pending" | "accepted" | "rejected" | "completed"
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { error } = await supabase
     .from("campaign_applications")
@@ -99,7 +99,7 @@ export async function hasAlreadyApplied(
   campaignId: string,
   creatorId: string
 ): Promise<boolean> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data, error } = await supabase
     .from("campaign_applications")
@@ -117,7 +117,7 @@ export async function getApplicationStats(creatorId: string): Promise<{
   accepted: number;
   rejected: number;
 }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data, error } = await supabase
     .from("campaign_applications")

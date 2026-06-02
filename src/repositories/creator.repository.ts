@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { CreatorProfile, User } from "@/types";
 
 export async function getCreatorProfile(userId: string): Promise<CreatorProfile | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data, error } = await supabase
     .from("creator_profiles")
@@ -22,7 +22,7 @@ export async function getCreatorProfile(userId: string): Promise<CreatorProfile 
 }
 
 export async function getCreatorByUsername(username: string): Promise<CreatorProfile | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data, error } = await supabase
     .from("creator_profiles")
@@ -45,7 +45,7 @@ export async function updateCreatorProfile(
   userId: string,
   updates: Partial<CreatorProfile>
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { error } = await supabase
     .from("creator_profiles")
@@ -64,7 +64,7 @@ export async function createCreatorProfile(
   userId: string,
   data: { username: string; niche?: string }
 ): Promise<{ success: boolean; error?: string; profile?: CreatorProfile }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data: profile, error } = await supabase
     .from("creator_profiles")
@@ -91,7 +91,7 @@ export async function getAllCreators(params?: {
   page?: number;
   limit?: number;
 }): Promise<{ creators: (CreatorProfile & { user?: User })[]; total: number }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { search, niche, minFollowers, page = 1, limit = 12 } = params || {};
   
   let query = supabase
@@ -132,7 +132,7 @@ export async function getAllCreators(params?: {
 }
 
 export async function getTopCreators(limit: number = 20): Promise<CreatorProfile[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data, error } = await supabase
     .from("creator_profiles")
@@ -153,7 +153,7 @@ export async function getTopCreators(limit: number = 20): Promise<CreatorProfile
 }
 
 export async function isUsernameAvailable(username: string): Promise<boolean> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data, error } = await supabase
     .from("creator_profiles")

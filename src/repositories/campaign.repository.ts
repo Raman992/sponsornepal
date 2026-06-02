@@ -8,7 +8,7 @@ export async function getCampaigns(params?: {
   page?: number;
   limit?: number;
 }): Promise<{ campaigns: (Campaign & { brand?: User })[]; total: number }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { status, brandId, search, page = 1, limit = 12 } = params || {};
   
   let query = supabase
@@ -49,7 +49,7 @@ export async function getCampaigns(params?: {
 }
 
 export async function getCampaignById(id: string): Promise<Campaign | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data, error } = await supabase
     .from("campaigns")
@@ -69,7 +69,7 @@ export async function getCampaignById(id: string): Promise<Campaign | null> {
 }
 
 export async function getOpenCampaigns(limit: number = 20): Promise<Campaign[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data, error } = await supabase
     .from("campaigns")
@@ -102,7 +102,7 @@ export async function createCampaign(
     campaign_type?: string;
   }
 ): Promise<{ success: boolean; error?: string; campaign?: Campaign }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data: campaign, error } = await supabase
     .from("campaigns")
@@ -127,7 +127,7 @@ export async function updateCampaign(
   brandId: string,
   updates: Partial<Campaign>
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { error } = await supabase
     .from("campaigns")
@@ -147,7 +147,7 @@ export async function deleteCampaign(
   campaignId: string,
   brandId: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { error } = await supabase
     .from("campaigns")
@@ -176,7 +176,7 @@ export async function getCampaignStats(brandId: string): Promise<{
   in_progress: number;
   completed: number;
 }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data, error } = await supabase
     .from("campaigns")
