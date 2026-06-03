@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Deal } from "@/types";
 
 export async function getDeals(userId: string): Promise<Deal[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("deals")
@@ -24,7 +24,7 @@ export async function getDeals(userId: string): Promise<Deal[]> {
 }
 
 export async function getDeal(dealId: string, userId: string): Promise<Deal | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("deals")
@@ -49,7 +49,7 @@ export async function getDeal(dealId: string, userId: string): Promise<Deal | nu
 export async function getDealByCampaign(
   campaignId: string
 ): Promise<Deal | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("deals")
@@ -70,7 +70,7 @@ export async function createDeal(
   brandId: string,
   agreedAmount: number
 ): Promise<{ success: boolean; deal?: Deal; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const existingDeal = await getDealByCampaign(campaignId);
   if (existingDeal) {
@@ -104,7 +104,7 @@ export async function updateDealStatus(
   userId: string,
   status: "pending" | "active" | "completed" | "cancelled"
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("deals")
@@ -126,7 +126,7 @@ export async function updateDealPayment(
   escrowStatus: string,
   payoutStatus?: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const updates: Record<string, string> = {
     escrow_status: escrowStatus,
@@ -151,7 +151,7 @@ export async function updateDealPayment(
 }
 
 export async function getActiveDeals(userId: string): Promise<Deal[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("deals")
@@ -174,7 +174,7 @@ export async function getActiveDeals(userId: string): Promise<Deal[]> {
 }
 
 export async function getPendingDeals(userId: string): Promise<Deal[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("deals")
@@ -197,7 +197,7 @@ export async function getPendingDeals(userId: string): Promise<Deal[]> {
 }
 
 export async function getDealCount(userId: string): Promise<number> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { count, error } = await supabase
     .from("deals")
@@ -213,7 +213,7 @@ export async function getDealCount(userId: string): Promise<number> {
 }
 
 export async function getActiveDealCount(userId: string): Promise<number> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { count, error } = await supabase
     .from("deals")
