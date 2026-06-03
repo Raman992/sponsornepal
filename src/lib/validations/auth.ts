@@ -34,7 +34,7 @@ export const signupSchema = z.object({
     .min(2, 'Full name must be at least 2 characters')
     .max(100, 'Full name must be less than 100 characters'),
   role: z.enum(['creator', 'brand'], {
-    required_error: 'Please select a role',
+    message: 'Please select a role',
   }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",

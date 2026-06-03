@@ -14,7 +14,7 @@ export interface SessionUser {
 
 export async function getSession(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: { user }, error } = await supabase.auth.getUser();
 
