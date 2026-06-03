@@ -2,7 +2,6 @@
 
 A production-ready MVP marketplace connecting Nepali creators with brands for sponsorships and influencer marketing campaigns.
 
-![SponsorNepal Banner](https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200)
 
 ## Features
 
