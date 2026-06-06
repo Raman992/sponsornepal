@@ -29,7 +29,7 @@ export default function BrandDashboardPage() {
   const { sidebarOpen } = useUIStore();
 
   const { data: campaignStats, isLoading: statsLoading } = useCampaignStats(user?.id || "");
-  const { data: campaigns = [], isLoading: campaignsLoading } = useBrandCampaigns(user?.id || "");
+  const { data: campaignData, isLoading: campaignsLoading } = useBrandCampaigns(user?.id || "");
   const { data: activeDeals = [], isLoading: dealsLoading } = useActiveDeals();
 
   const isLoading = statsLoading || campaignsLoading || dealsLoading;
@@ -41,7 +41,8 @@ export default function BrandDashboardPage() {
     openDeals: activeDeals.length,
   };
 
-  const recentCampaigns = (campaigns || []).slice(0, 3);
+  const campaigns = campaignData?.campaigns || [];
+  const recentCampaigns = campaigns.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background">
@@ -259,7 +260,7 @@ export default function BrandDashboardPage() {
                       ))}
                     </>
                   ) : recentCampaigns.length > 0 ? (
-                    recentCampaigns.map((campaign) => (
+                    recentCampaigns.map((campaign: { id: string; title: string; status: string; budget?: number | null; deadline?: string | null }) => (
                       <div
                         key={campaign.id}
                         className="p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
