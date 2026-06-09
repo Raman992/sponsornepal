@@ -7,13 +7,13 @@ import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signUpSchema } from "@/lib/validations";
-import { signUpAction } from "@/actions";
+import { signupSchema } from "@/lib/validations/auth";
+import { signupAction } from "@/actions/auth.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import type { UserRole } from "@/types";
+import type { UserRole } from "@/store/auth-store";
 
 export function SignUpForm() {
   const router = useRouter();
@@ -27,28 +27,30 @@ export function SignUpForm() {
     setValue,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(signUpSchema),
+    resolver: zodResolver(signupSchema),
     defaultValues: {
       email: "",
       password: "",
-      full_name: "",
+      confirmPassword: "",
+      fullName: "",
       role: undefined,
     },
   });
 
   const selectedRole = watch("role");
 
-  const onSubmit = async (data: { email: string; password: string; full_name: string; role: UserRole }) => {
+  const onSubmit = async (data: { email: string; password: string; confirmPassword: string; fullName: string; role: "creator" | "brand" }) => {
     setIsLoading(true);
     setError(null);
 
     const formData = new FormData();
     formData.append("email", data.email);
     formData.append("password", data.password);
-    formData.append("full_name", data.full_name);
+    formData.append("confirmPassword", data.confirmPassword);
+    formData.append("fullName", data.fullName);
     formData.append("role", data.role);
 
-    const result = await signUpAction(formData);
+    const result = await signupAction(formData);
 
     setIsLoading(false);
 
@@ -77,13 +79,13 @@ export function SignUpForm() {
           <div className="space-y-2">
             <Label htmlFor="full_name">Full Name</Label>
             <Input
-              id="full_name"
+              id="fullName"
               placeholder="Enter your full name"
-              {...register("full_name")}
-              className={errors.full_name ? "border-destructive" : ""}
+              {...register("fullName")}
+              className={errors.fullName ? "border-destructive" : ""}
             />
-            {errors.full_name && (
-              <p className="text-sm text-destructive">{errors.full_name.message}</p>
+            {errors.fullName && (
+              <p className="text-sm text-destructive">{errors.fullName.message}</p>
             )}
           </div>
 
