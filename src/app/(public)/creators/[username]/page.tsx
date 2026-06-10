@@ -23,11 +23,11 @@ export async function generateMetadata({ params }: CreatorProfilePageProps): Pro
   const { username } = await params;
   const result = await getCreatorByUsernameAction(username);
 
-  if (!result.success || !result.data?.creator) {
+  if (!result.success || !result.data) {
     return { title: "Creator Not Found" };
   }
 
-  const creator = result.data.creator;
+  const creator = result.data as any;
   const name = creator.user?.full_name || creator.username;
   const description = creator.bio || `View ${creator.username}'s profile on SponsorNepal`;
 
@@ -56,11 +56,11 @@ export default async function CreatorProfilePage({ params }: CreatorProfilePageP
   const { username } = await params;
   const result = await getCreatorByUsernameAction(username);
   
-  if (!result.success || !result.data?.creator) {
+  if (!result.success || !result.data) {
     notFound();
   }
   
-  const creator = result.data.creator as any;
+  const creator = result.data as any;
   
   const formatNumber = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
