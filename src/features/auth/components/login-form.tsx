@@ -42,8 +42,8 @@ export function LoginForm() {
 
     setIsLoading(false);
 
-    if (result.success && result.userData) {
-      router.push(`/dashboard/${result.userData.role}`);
+    if (result.success && result.data) {
+      router.push(`/dashboard/creator`);
       router.refresh();
     } else {
       setError(result.error || "Sign in failed");
